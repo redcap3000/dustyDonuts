@@ -1,0 +1,34 @@
+<head>
+  <title>datagov</title>
+</head>
+
+<body>
+
+  {{>d3}}
+</body>
+
+
+
+<template name="d3">
+
+</template>
+
+<template name="aggregateData">
+{{#each getData}}
+	{{> singlePlot}}
+	<br/>
+{{/each}}
+</template>
+
+<template name="singlePlot">
+	{{airquality_raw}}
+	{{city}}
+	{{dust}}
+	{{op}}
+	{{resolution}}
+	{{timestamp}}
+</template>
+
+<template name="nvd3">
+	<svg id="chart"></svg>
+</template>
