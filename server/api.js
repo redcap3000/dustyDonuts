@@ -1,16 +1,20 @@
+Meteor.publish("dataset",function(from,before,overCity,fields,op,resolution){
+	return dataset.find();
+});
+
 Meteor.methods({
-	govApi: function (from,before,fields,op,resultion,overCity) {
+	govApi: function (from,before,overCity,fields,op,resultion) {
 		// ...
 		if(typeof from == "undefined"){
 			//start
-			from = '2015-02-04T00:00:00-0800';
+			from = moment().subtract(7,'days').format();
 		}
 		if(typeof before == "undefined"){
-			//end
-			before = '2015-02-05T00:00:00-0800';
+			//end today ??
+			before = moment().format();
 		}
 		if (typeof fields == "undefined"){
-			fields = 'airquality_raw,dust';
+			fields = 'airquality_raw,dust,sound';
 		}
 		// aggregation operation
 		if(typeof op == "undefined"){
@@ -30,18 +34,58 @@ Meteor.methods({
 		var base_url = 'http://sensor-api.localdata.com/api/v1/aggregations?';
 
 		base_url += 'from=' + from + '&before=' + before + '&fields=' + fields + '&resolution=' + resolution+ '&op=' + op + '&over.city=' + overCity ;
-		//console.log(base_url);
+		console.log(base_url);
 
-//		2015-02-04T00:00:00-0800&before=2015-02-05T00:00:00-0800
+//		2015-02-04T00:00:00-0800
+//      &before=2015-02-05T00:00:00-0800
 
 		Meteor.http.get(base_url,false,function(error,response){
 			if(typeof error != "undefined" && typeof response != "undefined" && typeof response.data != "undefined" && typeof response.data.data != "undefined"){
 				//console.log(typeof response.data.data);
+				//console.log(_.keys(response.data));
+				//console.log(_.keys(response.data.data[0]));
+//				console.log(_.keys(response.data.data[1]));
 
 				response.data.data.filter(function(arr){
-					arr.resolution = resolution;
-					arr.op = op;
-					dataset.insert(arr);
+					// we have rows and fields... mehhh
+					if(typeof arr.rows != "undefined" && typeof arr.fields != "undefined"){
+						// ths is the weird response ...
+						//console.log(arr.fields);
+						// i'm guessing the order of the params are the order in which
+						// you structure &fields=
+						var fSplit = fields.split(',');
+						console.log(fSplit);
+						arr.rows.filter(function(arr2,i){
+								var dbEntry = {};
+								console.log(_.pairs(arr2).filter(function(newParam){
+									if(newParam[0] != 'city' && newParam[0] != 'timestamp'){
+										var key = parseInt(newParam[0]);
+										if(key){
+											dbEntry[fSplit[key]] = newParam[1];
+										}else if(newParam[0] == '0'){
+											dbEntry[fSplit[0]] = newParam[1];
+										}
+									}else if(newParam[0] == 'timestamp'){
+										dbEntry._id = newParam[1];
+									}else{
+										dbEntry[newParam[0]] = newParam[1];
+
+									}
+									// id via timestamp ???
+								}));
+								if(dbEntry != {}){
+									// if the objet exists and the fields are different...
+									// probaby want to use an update and "$set"
+									console.log(dbEntry);
+									dataset.insert(dbEntry);
+								}
+							// build a new object....
+						});
+					}else{
+						//arr.resolution = resolution;
+						//arr.op = op;
+						//dataset.insert(arr);
+					}
 				});
 			}
 		});

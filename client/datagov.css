@@ -1,7 +1,11 @@
 body {
   font: 10px sans-serif;
 }
-
+svg {
+	width:auto;
+	float:left;
+	height:auto;
+}
 .arc {
   stroke: #fff;
 }

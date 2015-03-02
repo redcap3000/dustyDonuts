@@ -3,11 +3,35 @@
 </head>
 
 <body>
+<h2>
+	Air /dust and noise 
+</h2>
+<h4>
+	Over time
+	</h4>
 
-  {{>d3}}
+	{{>d3}}
+	{{>controls}}
 </body>
 
+<template name='controls'>
+<div class="float:right;padding-bottom:10px;">
 
+	<label>city</label>
+	<select class="city">
+			<option>San Francisco</option>
+			<option>Boston</option>
+			<option>Geneva</option>
+	</select>
+	<label>Start date</label>
+	<input class="startDate" type='date'>
+	<label>End date</label>
+	<input class="endDate" type='date'>
+
+	<button class="lookup">Lookup</button>
+</div>
+
+</template>
 
 <template name="d3">
 
@@ -31,4 +55,12 @@
 
 <template name="nvd3">
 	<svg id="chart"></svg>
+</template>
+
+
+<template name="sampleCSV">
+City,dust,noise,airquality<br/>
+{{#each getRows}}
+{{city}},{{dust}},{{sound}},{{airquality_raw}}<br/>
+{{/each}}
 </template>
