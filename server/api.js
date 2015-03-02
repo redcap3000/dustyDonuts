@@ -54,10 +54,9 @@ Meteor.methods({
 						// i'm guessing the order of the params are the order in which
 						// you structure &fields=
 						var fSplit = fields.split(',');
-						console.log(fSplit);
 						arr.rows.filter(function(arr2,i){
 								var dbEntry = {};
-								console.log(_.pairs(arr2).filter(function(newParam){
+								_.pairs(arr2).filter(function(newParam){
 									if(newParam[0] != 'city' && newParam[0] != 'timestamp'){
 										var key = parseInt(newParam[0]);
 										if(key){
@@ -69,15 +68,13 @@ Meteor.methods({
 										dbEntry._id = newParam[1];
 									}else{
 										dbEntry[newParam[0]] = newParam[1];
-
 									}
 									// id via timestamp ???
-								}));
-								if(dbEntry != {}){
+								});
+								if(dbEntry != {} && typeof dbEntry._id != "undefined"){
 									// if the objet exists and the fields are different...
 									// probaby want to use an update and "$set"
-									console.log(dbEntry);
-									dataset.insert(dbEntry);
+									dataset.update({_id : dbEntry._id },dbEntry,{upsert : true});
 								}
 							// build a new object....
 						});
