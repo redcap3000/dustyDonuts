@@ -79,9 +79,10 @@ Meteor.methods({
 							// build a new object....
 						});
 					}else{
-						//arr.resolution = resolution;
-						//arr.op = op;
-						//dataset.insert(arr);
+						arr.resolution = resolution;
+						arr.op = op;
+						arr._id = arr.timestamp;
+						dataset.update({_id : arr.timestamp}, arr,{upsert:true});
 					}
 				});
 			}
