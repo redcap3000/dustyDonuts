@@ -45,7 +45,10 @@ Template.controls.events({
         Session.set("endDate",date.value);
       }
       return true;
-    }
+  },
+  'change .city' : function(evt,tmpl){
+
+  }
 });
 
 
@@ -53,7 +56,17 @@ Template.aggregateData.helpers({
   getData: function () {
     // ...
     renderLegend();
-    return dataset.find();
+
+    return dataset.find({},{sort: {timestamp: -1}});
+  },
+  getSf : function(){
+    return dataset.find({city : "San Francisco"});
+  },
+  getBangalore : function(){
+    return dataset.find({city : "Bangalore"});
+  },
+  comparison : function(){
+    // we'll want to order things via time????
   }
 });
 
@@ -76,7 +89,17 @@ Template.controls.events({
   }
 });
 
-
+Template.controls.helpers({
+  data : function(){
+    return {datetime1: moment.utc().toDate() ,datetime2 : moment.utc().toDate()}
+  },
+  startDate: function () {
+    return Session.get("startDate");
+  },
+  endDate : function(){
+    return Session.get("endDate");
+  }
+});
 
 Template.singlePlot.destroyed = function(){
   console.log('try to destory');
@@ -113,7 +136,8 @@ Template.singlePlot.rendered = function(){
   });
   var radius = 74,
       padding = 10;
-
+  var GUID = moment(this.data.timestamp).format('YYYMMDDTHHMMSS') + this.data.city;
+  console.log(GUID);
   var arc = d3.svg.arc()
       .outerRadius(radius)
       .innerRadius(radius - 30);
@@ -122,26 +146,26 @@ Template.singlePlot.rendered = function(){
       // swap out population value
       .value(function(d) { return d.val; });
       // ATTACH A CLICK ACTION
-    var svg = d3.select("body").selectAll(".pie_" + moment(this.data._id).format('YYYMMDDTHHMMSS'))
+    var svg = d3.select("body").selectAll(".pie_" + GUID)
         .data(data)
       .enter().append("svg")
-        .attr("class", "pie_" + moment(this.data.timestamp).format('YYYMMDDTHHMMSS'))
+        .attr("class", "pie_" + GUID)
         .attr("width", radius * 2)
         .attr("height", radius * 2)
       .append("g")
         .attr("transform", "translate(" + radius + "," + radius + ")");
 
-    svg.selectAll(".arc_" + moment(this.data.timestamp).format('YYYMMDDTHHMMSS') )
+    svg.selectAll(".arc_" + GUID )
         .data(function(d) { return pie(d.fields); })
       .enter().append("path")
-        .attr("class", "arc_" + moment(this.data.timestamp).format('YYYMMDDTHHMMSS')) 
+        .attr("class", "arc_" + GUID) 
         .attr("d", arc)
         .style("fill", function(d) { return color(d.data.name); });
 
     svg.append("text")
         .attr("dy", ".35em")
         .style("text-anchor", "middle")
-        .text(function(d) { return d.timestamp; });
+        .text(function(d) { return d.city + ' ' + moment(d.timestamp).format('MMM Do h a'); });
 
 
 };

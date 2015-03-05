@@ -1,9 +1,21 @@
-Meteor.publish("dataset",function(from,before,overCity,fields,op,resolution){
-	return dataset.find();
+Meteor.startup(function () {
+
+	Meteor.call("govApi","Rio de Janeiro");
+	Meteor.call("govApi","Geneva");
+	Meteor.call("govApi","Boston");
+	Meteor.call("govApi","Bangalore");
+	Meteor.call("govApi","San Francisco")
+
+});
+
+Meteor.publish("dataset",function(overCity,fields,op,resolution,from,before){
+	// get one day only by default ? 
+
+	return dataset.find({},{sort: {timestamp: -1}});
 });
 
 Meteor.methods({
-	govApi: function (from,before,overCity,fields,op,resultion) {
+	govApi: function (overCity,fields,op,resultion,from,before) {
 		// ...
 		if(typeof from == "undefined"){
 			//start
@@ -41,10 +53,6 @@ Meteor.methods({
 
 		Meteor.http.get(base_url,false,function(error,response){
 			if(typeof error != "undefined" && typeof response != "undefined" && typeof response.data != "undefined" && typeof response.data.data != "undefined"){
-				//console.log(typeof response.data.data);
-				//console.log(_.keys(response.data));
-				//console.log(_.keys(response.data.data[0]));
-//				console.log(_.keys(response.data.data[1]));
 
 				response.data.data.filter(function(arr){
 					// we have rows and fields... mehhh
@@ -80,9 +88,10 @@ Meteor.methods({
 							// build a new object....
 						});
 					}else{
-						arr._id = arr.timestamp + resolution + op;
+						arr._id = arr.timestamp + resolution + op + overCity;
 						arr.timestamp = new Date(arr.timestamp);
-						dataset.update({_id : arr.timestamp + resolution + op}, arr,{upsert:true});
+
+						dataset.update({_id : arr.timestamp + resolution + op + overCity}, arr,{upsert:true});
 					}
 				});
 			}

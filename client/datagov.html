@@ -19,14 +19,16 @@
 	<label>city</label>
 	<select class="city">
 			<option>San Francisco</option>
+			<option>Bangalore</option>
 			<option>Boston</option>
 			<option>Geneva</option>
+			<option>Rio de Janerio</option>
+			<option>Shanghai</option>
+			<option>Singapore</option>
 	</select>
-	<label>Start date</label>
-	<input class="startDate" type='date'>
-	<label>End date</label>
-	<input class="endDate" type='date'>
+	
 
+	
 	<button class="lookup">Lookup</button>
 </div>
 
@@ -34,9 +36,13 @@
 
 
 <template name="aggregateData">
+
 {{#each getData}}
-	{{> singlePlot}}
+	{{>singlePlot}}
 {{/each}}
+
+
+
 </template>
 
 <template name="singlePlot">
