@@ -15,7 +15,7 @@ Tracker.autorun(function() {
       var ranges = dataset.find({}).fetch();
       if(ranges && ranges.length > 0){
         // these need to be dates to properly filter ....
-        console.log(moment(ranges[0].timestamp));
+        // get first and last in range of client set
         Session.set("startDate",ranges[0].timestamp);
         Session.set("endDate",ranges.pop().timestamp);
       }
@@ -27,12 +27,10 @@ Tracker.autorun(function() {
 
 Template.controls.events({
   'change .startDate': function (evt,tmpl) {
-    console.log(this);
     var date = tmpl.find(".startDate");
     if(typeof date != "undefined" && typeof date.value != "undefined" && date.value != ''){
       Session.set("startDate",date.value);
     }
-    console.log(date.value);
     return true;
     // ...
   },
@@ -57,7 +55,6 @@ Template.aggregateData.helpers({
 Template.sampleCSV.helpers({
   getRows: function () {
     // ...
-  //  console.log(dataset.find().fetch());
     return dataset.find();
   }
 });
@@ -68,13 +65,8 @@ Template.controls.events({
     var city = tmpl.find(".city");
     var startDate = tmpl.find(".startDate");
     var endDate = tmpl.find(".endDate");
-    //Meteor.call()
-    // govApi: function (from,before,overCity,fields,op,resultion) {
-      // flush current data ?
-    //dataset.remove();
-    // subscribe....
-    Meteor.call("govApi",startDate.value,endDate.value,city.value);
 
+    Meteor.call("govApi",startDate.value,endDate.value,city.value);
   }
 });
 
@@ -85,19 +77,24 @@ Template.singlePlot.destroyed = function(){
   d3.selectAll(".arc_" + moment(this.data._id).format('YYYMMDDTHHMMSS') ).remove();
   return true;
 }
-Template.singlePlot.rendered = function(){
-  //console.log(this);
-  var data = [this.data];
+
+var colorRange = function(aDataset){
+
   var color = d3.scale.ordinal()
       .range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
 
-  color.domain(d3.keys(data[0]).filter(
+  color.domain(d3.keys(aDataset).filter(
     // keys to NOT use
     function(key){
       return key !== "city" && key !== "_id" && key !== "op" && key !== "resolution" && key !== "timestamp";
     })
   );
-
+  return color;
+}
+Template.singlePlot.rendered = function(){
+  var data = [this.data];
+  var color = colorRange(this.data);
+  // dont need a foreach :()
   data.forEach(function(d){
     d.fields = color.domain().map(function(name){
       if(typeof d[name != "undefined"]){
@@ -110,16 +107,13 @@ Template.singlePlot.rendered = function(){
   var radius = 74,
       padding = 10;
 
-  var color = d3.scale.ordinal()
-      .range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
-
   var arc = d3.svg.arc()
       .outerRadius(radius)
       .innerRadius(radius - 30);
   var pie = d3.layout.pie()
       .sort(null)
       // swap out population value
-      .value(function(d) { console.log(d); return d.val; });
+      .value(function(d) { return d.val; });
       // ATTACH A CLICK ACTION
     var svg = d3.select("body").selectAll(".pie_" + moment(this.data._id).format('YYYMMDDTHHMMSS'))
         .data(data)
@@ -131,7 +125,7 @@ Template.singlePlot.rendered = function(){
         .attr("transform", "translate(" + radius + "," + radius + ")");
 
     svg.selectAll(".arc_" + moment(this.data._id).format('YYYMMDDTHHMMSS') )
-        .data(function(d) { console.log(d); return pie(d.fields); })
+        .data(function(d) { return pie(d.fields); })
       .enter().append("path")
         .attr("class", "arc")
         .attr("d", arc)
@@ -140,29 +134,18 @@ Template.singlePlot.rendered = function(){
     svg.append("text")
         .attr("dy", ".35em")
         .style("text-anchor", "middle")
-        .text(function(d) { console.log(d); return d.timestamp; });
+        .text(function(d) { return d.timestamp; });
 
 
 };
 renderLegend = function () {
-  console.log('rendered');
   var radius = 74,
       padding = 10;
 
-  var color = d3.scale.ordinal()
-      .range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
-
-
-  // this is calculates total value based on d.population
-  // what field to look
- 
-  color.domain(d3.keys(dataset.findOne()).filter(
-    // keys to NOT use
-    function(key){
-      return key !== "city" && key !== "_id" && key !== "op" && key !== "resolution" && key !== "timestamp";
-    })
-  );
-  //  console.log(data2[0]);
+  var color = colorRange(dataset.findOne());
+  // dynamically generates legend keys based on
+  // keys to NOT graph...
+  // to do .. checkboxes to graph the other data to create custom comparisons
   var legend = d3.select("body").append("svg")
       .attr("class", "legend")
       .attr("width", radius * 2)
@@ -182,6 +165,4 @@ renderLegend = function () {
       .attr("y", 9)
       .attr("dy", ".35em")
       .text(function(d) { return d; });
-
-  
 };
