@@ -1,7 +1,10 @@
 
 // counter starts at 0
 
-var handle = Meteor.subscribe('dataset');
+var handle = Meteor.subscribe('dataset',function(){
+  // destroy and rerender legend....
+
+});
 
 Tracker.autorun(function() {
   if (handle.ready()){
@@ -16,14 +19,9 @@ Tracker.autorun(function() {
         Session.set("startDate",ranges[0].timestamp);
         Session.set("endDate",ranges.pop().timestamp);
       }
-
     }
-    // show key
-//    Template.d3.rendered();
-//    console.log(Posts.find().count());
-//    Session.set("ready",true);
-  }else{
-//    Session.set("ready",false)
+    d3.selectAll(".legend").remove();
+    renderLegend();
   }
 });
 
@@ -81,20 +79,16 @@ Template.controls.events({
 });
 
 
-Template.singlePlot.events({
-  'click .pie': function () {
-    // ...
-    console.log(this.data);
-  }
-});
+
 Template.singlePlot.destroyed = function(){
   d3.selectAll(".pie_" +  moment(this.data._id).format('YYYMMDDTHHMMSS') ).remove();
   d3.selectAll(".arc_" + moment(this.data._id).format('YYYMMDDTHHMMSS') ).remove();
+  return true;
 }
 Template.singlePlot.rendered = function(){
   //console.log(this);
   var data = [this.data];
-    var color = d3.scale.ordinal()
+  var color = d3.scale.ordinal()
       .range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
 
   color.domain(d3.keys(data[0]).filter(
@@ -150,44 +144,25 @@ Template.singlePlot.rendered = function(){
 
 
 };
-Template.d3.rendered = function () {
+renderLegend = function () {
   console.log('rendered');
-var radius = 74,
-    padding = 10;
+  var radius = 74,
+      padding = 10;
 
-var color = d3.scale.ordinal()
-    .range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
+  var color = d3.scale.ordinal()
+      .range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
 
-var arc = d3.svg.arc()
-    .outerRadius(radius)
-    .innerRadius(radius - 30);
-// this is calculates total value based on d.population
-// what field to look
-var pie = d3.layout.pie()
-    .sort(null)
-    // swap out population value
-    .value(function(d) { console.log(d); return d.val; });
 
-  //console.log(data[0]);
-  data = dataset.find().fetch();
-  color.domain(d3.keys(data[0]).filter(
+  // this is calculates total value based on d.population
+  // what field to look
+ 
+  color.domain(d3.keys(dataset.findOne()).filter(
     // keys to NOT use
     function(key){
       return key !== "city" && key !== "_id" && key !== "op" && key !== "resolution" && key !== "timestamp";
     })
   );
-
-  data.forEach(function(d){
-    d.fields = color.domain().map(function(name){
-      if(typeof d[name != "undefined"]){
-        return {name:name, val: parseFloat(d[name])}
-      }
-      // hmmm validation???
-      return {};
-    })
-  });
-
-//  console.log(data2[0]);
+  //  console.log(data2[0]);
   var legend = d3.select("body").append("svg")
       .attr("class", "legend")
       .attr("width", radius * 2)

@@ -9,3 +9,18 @@ svg {
 .arc {
   stroke: #fff;
 }
+
+.legend, .controls {
+	position:fixed;
+	right:0;
+	top:0;
+	height:80px;
+	background-color:white;
+	border-bottom:solid black 3px;
+}
+.controls{
+	padding-top:10px;
+	padding-left:15px;
+	height:70px;
+	left:0;
+}
