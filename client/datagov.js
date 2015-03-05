@@ -21,7 +21,12 @@ Tracker.autorun(function() {
       }
     }
     d3.selectAll(".legend").remove();
-    renderLegend();
+    if(typeof dataset != "undefined"){
+      var findOne = dataset.findOne();
+      if(typeof findOne != "undefined" && findOne){
+        renderLegend(findOne);
+      }
+    }
   }
 });
 
@@ -47,6 +52,7 @@ Template.controls.events({
 Template.aggregateData.helpers({
   getData: function () {
     // ...
+    renderLegend();
     return dataset.find();
   }
 });
@@ -73,8 +79,9 @@ Template.controls.events({
 
 
 Template.singlePlot.destroyed = function(){
-  d3.selectAll(".pie_" +  moment(this.data._id).format('YYYMMDDTHHMMSS') ).remove();
-  d3.selectAll(".arc_" + moment(this.data._id).format('YYYMMDDTHHMMSS') ).remove();
+  console.log('try to destory');
+  d3.selectAll(".pie_" +  moment(this.data.timestamp).format('YYYMMDDTHHMMSS') ).remove();
+  d3.selectAll(".arc_" + moment(this.data.timestamp).format('YYYMMDDTHHMMSS') ).remove();
   return true;
 }
 
@@ -118,16 +125,16 @@ Template.singlePlot.rendered = function(){
     var svg = d3.select("body").selectAll(".pie_" + moment(this.data._id).format('YYYMMDDTHHMMSS'))
         .data(data)
       .enter().append("svg")
-        .attr("class", "pie")
+        .attr("class", "pie_" + moment(this.data.timestamp).format('YYYMMDDTHHMMSS'))
         .attr("width", radius * 2)
         .attr("height", radius * 2)
       .append("g")
         .attr("transform", "translate(" + radius + "," + radius + ")");
 
-    svg.selectAll(".arc_" + moment(this.data._id).format('YYYMMDDTHHMMSS') )
+    svg.selectAll(".arc_" + moment(this.data.timestamp).format('YYYMMDDTHHMMSS') )
         .data(function(d) { return pie(d.fields); })
       .enter().append("path")
-        .attr("class", "arc")
+        .attr("class", "arc_" + moment(this.data.timestamp).format('YYYMMDDTHHMMSS')) 
         .attr("d", arc)
         .style("fill", function(d) { return color(d.data.name); });
 
@@ -138,11 +145,11 @@ Template.singlePlot.rendered = function(){
 
 
 };
-renderLegend = function () {
+renderLegend = function (obj) {
   var radius = 74,
       padding = 10;
 
-  var color = colorRange(dataset.findOne());
+  var color = colorRange(obj);
   // dynamically generates legend keys based on
   // keys to NOT graph...
   // to do .. checkboxes to graph the other data to create custom comparisons

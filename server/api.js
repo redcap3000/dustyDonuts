@@ -66,6 +66,7 @@ Meteor.methods({
 										}
 									}else if(newParam[0] == 'timestamp'){
 										dbEntry._id = newParam[1];
+
 									}else{
 										dbEntry[newParam[0]] = newParam[1];
 									}
@@ -79,10 +80,9 @@ Meteor.methods({
 							// build a new object....
 						});
 					}else{
-						arr.resolution = resolution;
-						arr.op = op;
-						arr._id = arr.timestamp;
-						dataset.update({_id : arr.timestamp}, arr,{upsert:true});
+						arr._id = arr.timestamp + resolution + op;
+						arr.timestamp = new Date(arr.timestamp);
+						dataset.update({_id : arr.timestamp + resolution + op}, arr,{upsert:true});
 					}
 				});
 			}
