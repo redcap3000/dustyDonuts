@@ -1,7 +1,9 @@
 
 // counter starts at 0
-
-var handle = Meteor.subscribe('dataset',function(){
+  Session.set("selectedTime",undefined);
+  Session.set("selectedCity",undefined);
+  Session.set("entryFilter",undefined);
+handle = Meteor.subscribe('dataset',function(){
   // destroy and rerender legend....
 
 });
@@ -29,7 +31,67 @@ Tracker.autorun(function() {
     }
   }
 });
+Template.chart.rendered = function(){
 
+var defaults = {
+    bindTo: 'body',
+    className: 'donut',
+    size: {
+      width: 200,
+      height: 200 
+    },
+    margin: {
+      top: 20,
+      right: 20,
+      bottom: 20,
+      left: 20
+    },
+    startAngle: 0,
+    endAngle: 360,
+    thickness: 20,
+    offset: 0,
+    sort: null,
+    colors: d3.scale.category20c()
+  };
+
+
+
+var test = new Donut({
+  bindTo: '.examples',
+  offset: 0
+});
+
+var test2 = new Donut({
+  bindTo: '.examples',
+  background: true,
+  thickness: 10,
+  offset: 1,
+  startAngle: -45,
+  endAngle: 45
+});
+
+var test3 = new Donut({
+  bindTo: '.examples',
+  background: true,
+  maxValue: 60,
+  startAngle: -90,
+  endAngle: 90,
+  thickness: 5
+});
+// THIS LOOKS LIKE THE ACTUAL VALUE!!!
+var d = [];
+var rows = dataset.find({"city" : Session.get("selectedCity")}).forEach(function (post) {
+  if(d.length < 8){
+    d.push(Math.round(post.sound));
+  }
+});
+//var d = [4,4,8];
+
+//test.load({data: d});
+test2.load({data: d});
+
+
+}
 Template.controls.events({
   'change .startDate': function (evt,tmpl) {
     var date = tmpl.find(".startDate");
@@ -47,7 +109,22 @@ Template.controls.events({
       return true;
   },
   'change .city' : function(evt,tmpl){
+    var city = tmpl.find(".city");
+    if(typeof city != "undefined" && city && city.value != "undefined" && city.value != ''){
+      // remove spaces from value
+//      var theCity = city.value.split(' ').join('');
+      Session.set("selectedCity",city.value);
 
+    }else{
+      Session.set("selectedCity",false);
+    }
+  },
+  'click .reset' : function(evt,tmpl){
+    handle.stop();
+    handle = Meteor.subscribe('dataset',function(){
+      // destroy and rerender legend....
+
+    });
   }
 });
 
@@ -56,17 +133,43 @@ Template.aggregateData.helpers({
   getData: function () {
     // ...
     renderLegend();
+    var selectedCity = Session.get('selectedCity');
+    var entryFilter = Session.get("entryFilter");
 
-    return dataset.find({},{sort: {timestamp: -1}});
-  },
-  getSf : function(){
-    return dataset.find({city : "San Francisco"});
-  },
-  getBangalore : function(){
-    return dataset.find({city : "Bangalore"});
-  },
-  comparison : function(){
-    // we'll want to order things via time????
+    if(typeof entryFilter == "undefined" || !entryFilter){
+      entryFilter = 25;
+    }else{
+      entryFilter = parseInt(entryFilter);
+    }
+    if(typeof selectedCity != "undefined" && selectedCity){
+      return dataset.find({city : selectedCity},{sort : {timestamp: 1 },limit : entryFilter }).fetch();
+    }else{
+      // else do a software side sort of city to enforce city order
+      var data = dataset.find({},{sort: {timestamp: 1}}).fetch();
+    }
+    var byCity = {};
+
+    data.filter(function(o,i){
+      if(typeof byCity[o.city] == "undefined"){
+        byCity[o.city] = [];
+      }
+      byCity[o.city].push(o);
+    });
+    
+    var r = [];
+    var cities = _.keys(byCity);
+    if(typeof byCity[cities[0]] != "undefined"){
+
+      for (var i = 0; i < entryFilter; i++) {
+        cities.filter(function(cityName){
+          r.push(byCity[cityName][i]);
+        });
+      }
+
+      return r;
+    }else{
+      return [];
+    }
   }
 });
 
@@ -86,6 +189,13 @@ Template.controls.events({
     var endDate = tmpl.find(".endDate");
 
     Meteor.call("govApi",startDate.value,endDate.value,city.value);
+  },
+  'click .filterEntry' : function(evt,tmpl){
+    var newNum = tmpl.find(".entryFilter");
+    console.log(newNum);
+    if(typeof newNum != "undefined" && typeof newNum.value != "undefined" && newNum.value != '' ){
+      Session.set("entryFilter",newNum.value);
+    }
   }
 });
 
@@ -98,13 +208,27 @@ Template.controls.helpers({
   },
   endDate : function(){
     return Session.get("endDate");
+  },
+  selectedCity :function(){
+    return Session.get("selectedCity");
   }
 });
-
+Template.aggregateData.created = function(){
+  // attempt to destroy all single plots?
+  console.log('in agg data created');
+};
 Template.singlePlot.destroyed = function(){
-  console.log('try to destory');
-  d3.selectAll(".pie_" +  moment(this.data.timestamp).format('YYYMMDDTHHMMSS') ).remove();
-  d3.selectAll(".arc_" + moment(this.data.timestamp).format('YYYMMDDTHHMMSS') ).remove();
+  if(typeof this.data == "undefined" && typeof this.city != "undefined"){
+    var GUID = moment(this.timestamp).format('YYYMMDDTHHMMSS') + this.city.split(' ').join();
+  }else if(typeof this.data != "undefined" && typeof this.data.city != "undefined"){
+    var GUID = moment(this.data.timestamp).format('YYYMMDDTHHMMSS') + this.data.city.split(' ').join('');
+  }else{
+    // console.log('nothing to destroy');
+    return false;
+  }
+//  console.log(GUID);
+  d3.selectAll(".pie_" +  GUID ).remove();
+  d3.selectAll(".arc_" + GUID ).remove();
   return true;
 }
 
@@ -122,9 +246,14 @@ var colorRange = function(aDataset){
   return color;
 }
 Template.singlePlot.rendered = function(){
+  if(typeof this.data == "undefined"){
+    return false;
+  }
+
   var data = [this.data];
   var color = colorRange(this.data);
   // dont need a foreach :()
+
   data.forEach(function(d){
     d.fields = color.domain().map(function(name){
       if(typeof d[name != "undefined"]){
@@ -134,10 +263,9 @@ Template.singlePlot.rendered = function(){
       return {};
     })
   });
-  var radius = 74,
+  var radius = 94,
       padding = 10;
-  var GUID = moment(this.data.timestamp).format('YYYMMDDTHHMMSS') + this.data.city;
-  console.log(GUID);
+  var GUID = moment(this.data.timestamp).format('YYYMMDDTHHMMSS') + this.data.city.split(' ').join('');
   var arc = d3.svg.arc()
       .outerRadius(radius)
       .innerRadius(radius - 30);
@@ -161,11 +289,22 @@ Template.singlePlot.rendered = function(){
         .attr("class", "arc_" + GUID) 
         .attr("d", arc)
         .style("fill", function(d) { return color(d.data.name); });
-
+  
     svg.append("text")
-        .attr("dy", ".35em")
+        .attr("dy", ".45em")
         .style("text-anchor", "middle")
-        .text(function(d) { return d.city + ' ' + moment(d.timestamp).format('MMM Do h a'); });
+        .text(function(d) { 
+          return ( moment(d.timestamp).format('MMM Do h a') + ' ' + d.city) ; 
+        });
+
+    svg.on('click',function(d){
+      /// toggle action!!
+      // maybe pull up dialog to filter results via time, date, city ...
+        Session.set("selectedTime",moment(d.timestamp).format());
+ 
+        Session.set("selectedCity",d.city);
+
+    }); 
 
 
 };

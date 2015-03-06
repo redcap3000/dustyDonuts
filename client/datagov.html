@@ -11,38 +11,33 @@
 	</h4>
 	{{>controls}}
 	{{>aggregateData}}
+	
 </body>
 
 <template name='controls'>
 <div class="controls">
-
 	<label>city</label>
+	{{! dynamically generate these...}}
 	<select class="city">
+			<option value=''>All</option>
 			<option>San Francisco</option>
 			<option>Bangalore</option>
 			<option>Boston</option>
 			<option>Geneva</option>
-			<option>Rio de Janerio</option>
+			<option>Rio de Janeiro</option>
 			<option>Shanghai</option>
 			<option>Singapore</option>
 	</select>
-	
+	<input class="entryFilter" type="text" value="25"/> <button class="filterEntry" >Filter entrys</button>
 
-	
-	<button class="lookup">Lookup</button>
 </div>
-
 </template>
 
 
 <template name="aggregateData">
-
 {{#each getData}}
 	{{>singlePlot}}
 {{/each}}
-
-
-
 </template>
 
 <template name="singlePlot">
@@ -53,4 +48,12 @@ City,dust,noise,airquality<br/>
 {{#each getRows}}
 {{city}},{{dust}},{{sound}},{{airquality_raw}}<br/>
 {{/each}}
+</template>
+
+<template name="chart">
+<!-- JS only example of a reuseable d3.js donut maker. I like to call it Homer -->
+<div class='examples'>
+
+</div>
+
 </template>
