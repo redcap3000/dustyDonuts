@@ -23,11 +23,11 @@ Meteor.methods({
 		// ...
 		if(typeof from == "undefined"){
 			//start
-			from = moment().subtract(1,'days').format();
+			from = moment().subtract(1,'days').startOf('hour').format();
 		}
 		if(typeof before == "undefined"){
 			//end today ??
-			before = moment().format();
+			before = moment().startOf('hour').format();
 		}
 		if (typeof fields == "undefined" || fields == null){
 			fields = 'airquality_raw,dust,sound';
