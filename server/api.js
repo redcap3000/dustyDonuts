@@ -1,17 +1,21 @@
 Meteor.startup(function () {
-
-	Meteor.call("govApi","Rio de Janeiro");
-	Meteor.call("govApi","Geneva");
-	Meteor.call("govApi","Boston");
-	Meteor.call("govApi","Bangalore");
-	Meteor.call("govApi","San Francisco")
-
+	// refresh hourly? or more?
+	Meteor.setInterval(function(){
+		console.log('doing interval lookup');
+		Meteor.call("govApi","Rio de Janeiro");
+		Meteor.call("govApi","Geneva");
+		Meteor.call("govApi","Boston");
+		Meteor.call("govApi","Bangalore");
+		Meteor.call("govApi","San Francisco");
+		Meteor.call("govApi","Shanghai");
+		Meteor.call("govApi","Singapore");
+	},60 * 60 * 30);
 });
 
-Meteor.publish("dataset",function(overCity,fields,op,resolution,from,before){
+Meteor.publish("dataset",function(overCity,from,before,fields,op,resolution){
 	// get one day only by default ? 
 
-	return dataset.find({},{sort: {timestamp: -1}});
+	return dataset.find({});
 });
 
 Meteor.methods({
@@ -19,24 +23,24 @@ Meteor.methods({
 		// ...
 		if(typeof from == "undefined"){
 			//start
-			from = moment().subtract(7,'days').format();
+			from = moment().subtract(1,'days').format();
 		}
 		if(typeof before == "undefined"){
 			//end today ??
 			before = moment().format();
 		}
-		if (typeof fields == "undefined"){
+		if (typeof fields == "undefined" || fields == null){
 			fields = 'airquality_raw,dust,sound';
 		}
 		// aggregation operation
-		if(typeof op == "undefined"){
+		if(typeof op == "undefined" || op == null){
 			op = 'mean';
 		}
 
-		if(typeof resolution == 'undefined'){
+		if(typeof resolution == 'undefined' || op == null){
 			resolution = '1h'
 		}
-		if(typeof overCity == "undefined"){
+		if(typeof overCity == "undefined" || overCity == null){
 			overCity = 'San Francisco'
 		}
 		//http://sensor-api.localdata.com/api/v1/aggregations.csv?op=mean&fields=temperature,light,airquality_raw,sound,humidity,dust
@@ -56,6 +60,7 @@ Meteor.methods({
 
 				response.data.data.filter(function(arr){
 					// we have rows and fields... mehhh
+					/*
 					if(typeof arr.rows != "undefined" && typeof arr.fields != "undefined"){
 						// ths is the weird response ...
 						//console.log(arr.fields);
@@ -73,7 +78,7 @@ Meteor.methods({
 											dbEntry[fSplit[0]] = newParam[1];
 										}
 									}else if(newParam[0] == 'timestamp'){
-										dbEntry._id = newParam[1];
+										dbEntry._id = newParam[1] + resolution + op;
 
 									}else{
 										dbEntry[newParam[0]] = newParam[1];
@@ -87,12 +92,13 @@ Meteor.methods({
 								}
 							// build a new object....
 						});
-					}else{
+					*/
 						arr._id = arr.timestamp + resolution + op + overCity;
 						arr.timestamp = new Date(arr.timestamp);
+						if(dataset.findOne({_id : arr._id}).length === 0 )
+							dataset.update({_id : arr.timestamp + resolution + op + overCity}, arr,{upsert:true});
 
-						dataset.update({_id : arr.timestamp + resolution + op + overCity}, arr,{upsert:true});
-					}
+					
 				});
 			}
 		});
