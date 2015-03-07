@@ -1,3 +1,68 @@
+
+Template.chart.rendered = function(){
+
+var defaults = {
+    bindTo: 'body',
+    className: 'donut',
+    size: {
+      width: 200,
+      height: 200 
+    },
+    margin: {
+      top: 20,
+      right: 20,
+      bottom: 20,
+      left: 20
+    },
+    startAngle: 0,
+    endAngle: 360,
+    thickness: 20,
+    offset: 0,
+    sort: null,
+    colors: d3.scale.category20c()
+  };
+
+
+
+var test = new Donut({
+  bindTo: '.examples',
+  offset: 0
+});
+
+var test2 = new Donut({
+  bindTo: '.examples',
+  background: true,
+  thickness: 10,
+  offset: 1,
+  startAngle: -45,
+  endAngle: 45
+});
+
+var test3 = new Donut({
+  bindTo: '.examples',
+  background: true,
+  maxValue: 60,
+  startAngle: -90,
+  endAngle: 90,
+  thickness: 5
+});
+// THIS LOOKS LIKE THE ACTUAL VALUE!!!
+var d = [];
+var rows = dataset.find({"city" : Session.get("selectedCity")}).forEach(function (post) {
+  if(d.length < 8){
+    d.push(Math.round(post.sound));
+  }
+});
+//var d = [4,4,8];
+
+//test.load({data: d});
+test2.load({data: d});
+
+
+}
+
+Template.chart.created = function () {
+  // ...
 (function(global, undefined) {
 
   var defaults = {
@@ -261,3 +326,4 @@
   }
 
 })(window);
+};

@@ -1,23 +1,24 @@
 <head>
   <title>datagov</title>
+   <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
 </head>
 
 <body>
+	 <div id="map"></div>
 <h2>
 	Air /dust and noise 
 </h2>
 <h4>
 	Over time
 	</h4>
-		{{>map}}
-	{{>controls}}
+
 	{{>aggregateData}}
 
-	
+	<small>Click circles to limit data to a single city. Click circle again to
+		view all city data</small>
 </body>
-<template name='map'>
- <div id="map"></div>
-</template>
+
 <template name='controls'>
 <div class="controls">
 	<label>city</label>

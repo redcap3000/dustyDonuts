@@ -1,12 +1,12 @@
 body {
   font: 10px sans-serif;
 }
-#map { height: 480px; }
-svg {
-	width:auto;
-	float:left;
-	height:auto;
+#map { height: 280px; }
+
+.graph{
+
 }
+
 .arc {
   stroke: #fff;
 }
