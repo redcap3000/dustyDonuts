@@ -1,6 +1,7 @@
 body {
   font: 10px sans-serif;
 }
+#map { height: 480px; }
 svg {
 	width:auto;
 	float:left;

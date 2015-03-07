@@ -9,11 +9,15 @@
 <h4>
 	Over time
 	</h4>
+		{{>map}}
 	{{>controls}}
 	{{>aggregateData}}
+
 	
 </body>
-
+<template name='map'>
+ <div id="map"></div>
+</template>
 <template name='controls'>
 <div class="controls">
 	<label>city</label>
