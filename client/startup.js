@@ -3,7 +3,7 @@
   Session.set("entryFilter",undefined);
 handle = Meteor.subscribe('dataset',function(){
   // destroy and rerender legend....
-
+  console.log('subbed to dataset');
 });
 
 Tracker.autorun(function() {

@@ -1,6 +1,6 @@
 
 // counter starts at 0
-
+cityColors = {"Bangalore": "green","Boston": "orange","Rio de Janeiro": "gray","San Francisco": "red","Shanghai": "yellow","Singapore": "black"};
 Template.aggregateData.created = function(){
   // leaflet provider extension code... probabably only pick what i'm going to use 
   // eventually... https://github.com/leaflet-extras/leaflet-providers
@@ -599,14 +599,9 @@ Template.aggregateData.rendered = function(){
       console.log(d);
       if(typeof d.circle != "undefined" && typeof d.circle.color != "undefined"){
         // build global color object?
-        if(typeof cityColors == "undefined"){
-          cityColors = {};
-        }
+     
         // dry get colors does this already... hmmmm
-        if(typeof cityColors[d.circle.city] == "undefined"){
-          cityColors[d.circle.city] = d.circle.color;
-        }
-        console.log(cityColors);
+       
         return d.circle.color;
       }
       return 'black';
@@ -644,52 +639,16 @@ Template.aggregateData.rendered = function(){
     }
    })  
 
-
-//      if(typeof map == "undefined" && typeof L != "undefined"){
-     
-  //    }
 };
 
-Template.controls.events({
-  'change .startDate': function (evt,tmpl) {
-    var date = tmpl.find(".startDate");
-    if(typeof date != "undefined" && typeof date.value != "undefined" && date.value != ''){
-      Session.set("startDate",date.value);
-    }
-    return true;
-    // ...
-  },
-  'change .endDate': function(evt,tmpl){
-    var date = tmpl.find('.endDate');
-      if(typeof date != "undefined" && typeof date.value != "undefined" && date.value != ''){
-        Session.set("endDate",date.value);
-      }
-      return true;
-  },
-  'change .city' : function(evt,tmpl){
-    var city = tmpl.find(".city");
-    if(typeof city != "undefined" && city && city.value != "undefined" && city.value != ''){
-      // remove spaces from value
-//      var theCity = city.value.split(' ').join('');
-      Session.set("selectedCity",city.value);
-
-    }else{
-      Session.set("selectedCity",false);
-    }
-  },
-  'click .reset' : function(evt,tmpl){
-    handle.stop();
-    handle = Meteor.subscribe('dataset',function(){
-      // destroy and rerender legend....
-
-    });
-  }
-});
 
 
 Template.aggregateData.helpers({
   getData: function () {
     // ...
+    if(typeof dataset == "undefined"){
+      return false;
+    }
     renderLegend();
     var selectedCity = Session.get('selectedCity');
     var entryFilter = Session.get("entryFilter");
@@ -819,11 +778,10 @@ Template.singlePlot.rendered = function(){
     svg.append("text")
         .attr("dy", ".45em")
         .style("text-anchor", "middle").style("fill",function(d){
-          console.log(d);
           if(typeof cityColors[d.city] != "undefined"){
             return cityColors[d.city];
           }
-          return 'red';
+          return 'black';
 //          return d.circle.color;
         })
         .text(function(d) { 
