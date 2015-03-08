@@ -4,6 +4,7 @@
 handle = Meteor.subscribe('dataset',function(){
   // destroy and rerender legend....
   console.log('subbed to dataset');
+
 });
 
 Tracker.autorun(function() {
@@ -20,12 +21,15 @@ Tracker.autorun(function() {
         Session.set("endDate",ranges.pop().timestamp);
       }
     }
-    d3.selectAll(".legend").remove();
     if(typeof dataset != "undefined"){
       var findOne = dataset.findOne();
       if(typeof findOne != "undefined" && findOne){
+        d3.selectAll(".legend").remove();
+    
         renderLegend(findOne);
       }
+    }else{
+      console.log('dataset not found');
     }
   }
 });
