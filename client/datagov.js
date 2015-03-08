@@ -662,6 +662,7 @@ Template.aggregateData.helpers({
       return dataset.find({city : selectedCity},{sort : {timestamp: 1 },limit : entryFilter }).fetch();
     }else{
       // else do a software side sort of city to enforce city order
+      // return everything grouped by city? like an arrays []
       var data = dataset.find({},{sort: {timestamp: 1}}).fetch();
     }
     var byCity = {};
@@ -736,7 +737,13 @@ Template.singlePlot.rendered = function(){
   var color = colorRange(this.data);
   // build a range for the cities????
   // dont need a foreach :()
+/*
 
+** Code relating to transitons
+
+.delay(function(d, i) { return i / n * duration; })
+
+*/
   data.forEach(function(d){
     d.fields = color.domain().map(function(name){
       if(typeof d[name != "undefined"]){
@@ -758,8 +765,13 @@ Template.singlePlot.rendered = function(){
       .sort(null)
       // swap out population value
       .value(function(d) { return d.val; });
+
+
+
+
+
       // ATTACH A CLICK ACTION
-    var svg = d3.select("d3data").append(".pie_" + GUID)
+    var svg = d3.select("d3data").append("pie")
         .data(data)
       .enter().append("svg")
         .attr("class", "graph pie_" + GUID)
@@ -768,12 +780,25 @@ Template.singlePlot.rendered = function(){
       .append("g")
         .attr("transform", "translate(" + radius + "," + radius + ")");
 
-    svg.selectAll(".arc_" + GUID )
-        .data(function(d) { return pie(d.fields); })
+    svg.selectAll("arc" )
+        .data(function(d) {
+          // returns the size of the arc within the fields
+          console.log(pie);
+         return pie(d.fields); 
+       })
       .enter().append("path")
         .attr("class", "arc_" + GUID) 
         .attr("d", arc)
-        .style("fill", function(d) { return color(d.data.name); });
+        .style("fill", function(d) { return color(d.data.name); })
+        .transition().delay(function(d, i) { return i * 500; }).duration(500)
+          .attrTween('d', function(d) {
+               var i = d3.interpolate(d.startAngle+0.1, d.endAngle);
+               return function(t) {
+                   d.endAngle = i(t);
+                 return arc(d);
+               }
+          })
+        ;
   
     svg.append("text")
         .attr("dy", ".45em")
