@@ -583,7 +583,6 @@ Template.aggregateData.rendered = function(){
    g = svg.append("g");
    
    d3.json("/cityList2.json", function(collection) {
-    console.log(collection);
     // Add a LatLng object to each item in the dataset
     collection.objects.forEach(function(d) {
      d.LatLng = new L.LatLng(d.circle.coordinates[0],
@@ -783,7 +782,6 @@ Template.singlePlot.rendered = function(){
     svg.selectAll("arc" )
         .data(function(d) {
           // returns the size of the arc within the fields
-          console.log(pie);
          return pie(d.fields); 
        })
       .enter().append("path")
