@@ -746,7 +746,7 @@ Template.singlePlot.rendered = function(){
   data.forEach(function(d){
     d.fields = color.domain().map(function(name){
       if(typeof d[name != "undefined"]){
-        return {name:name, val: parseFloat(d[name])}
+        return {name:name, val: parseFloat(d[name]) * (name == 'airquality_raw'? 10 : 1)   }
       }
       // hmmm validation???
       return {};
