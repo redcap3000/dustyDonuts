@@ -38,14 +38,15 @@
 
 
 <template name="aggregateData">
-{{#each getData}}
+{{#each getSummaryData}}
 	{{>singlePlot}}
 {{/each}}
 </template>
 
 <template name="singlePlot">
 </template>
-
+<template name="multiPlot">
+</template>
 <template name="sampleCSV">
 City,dust,noise,airquality<br/>
 {{#each getRows}}
