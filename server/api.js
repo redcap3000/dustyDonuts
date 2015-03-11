@@ -17,6 +17,49 @@ Meteor.publish("dataset",function(overCity,from,before,fields,op,resolution){
 	return dataset.find({});
 });
 
+Meteor.publish("datasetDigest",function(from,before,op,resolution){
+
+  var byCity = {};
+    var data = dataset.find({},{sort: {timestamp: 1}}).map(function (o) {
+    	// ...
+   if(typeof byCity[o.city] == "undefined"){
+        byCity[o.city] = [];
+      }
+      byCity[o.city].push(o);
+
+    });;
+  
+
+    var r = [];
+    var cities = _.keys(byCity);
+
+    if(typeof byCity[cities[0]] != "undefined"){
+    	console.log(cities);
+    	for (var i = 0; i < cities.length; i++) {
+    		console.log(byCity[cities[i]].length);
+    		var theCity = {}
+    		for(var z = 0; z < byCity[cities[i]].length;z ++){
+    			if(z === 0){
+    				theCity.aniValues = [byCity[cities[i]][z]];
+    			}else{
+    				theCity.aniValues.push(byCity[cities[i]][z]);
+    			}
+    			if(z === byCity[cities[i]].length - 1 ){
+    				console.log("end of cities");
+    				console.log(theCity);
+    			}
+    		}
+    		r.push(theCity);
+    	};
+//      console.log(byCity);
+      return r;
+      // now add this data as a marker???
+    }else{
+      return [];
+    }
+
+});
+
 Meteor.methods({
 	govApi: function (overCity,fields,op,resultion,from,before) {
 		// ...
