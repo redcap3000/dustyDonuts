@@ -2,19 +2,24 @@
 
 
 Template.aggregateData.rendered = function(){
+  /*
+    Renders intial 'circles' as per leaflet example....
+    Pulls data from global variable in lib/d3.js
+  */
 
+  if(typeof handle == "undefined" || !handle){
+    return false;
+  }
   map = L.map('map').setView([0,0], 2);
   L.tileLayer.provider('Stamen.Watercolor').addTo(map);
   map._initPathRoot();
 
   var svg = d3.select("#map").select("svg"),g = svg.append("g");
-   
   // Add a LatLng object to each item in the dataset
   collection.objects.forEach(function(d) {
    d.LatLng = new L.LatLng(d.circle.coordinates[0],
       d.circle.coordinates[1])
   })
-    
   var feature = g.selectAll("circle")
    .data(collection.objects)
    .enter().append("circle")
@@ -27,30 +32,21 @@ Template.aggregateData.rendered = function(){
     return 'black';
    })
    .attr("r", 20);  
-
   map.on("viewreset", update);
   update();
-
   feature.on('click',function(d){
-    // begin animation????
-  /// toggle action!!
-  // maybe pull up dialog to filter results via time, date, city ...
-  console.log(d.circle.city);
+
+    // maybe pull up dialog to filter results via time, date, city ...
     if(Session.equals("selectedCity",d.circle.city)){
       // reset
       Session.set("selectedCity",false);
       // refresh all cirtcles? resub??
       handle.stop();
-     
       map.setView([0,0], 2);
-
-
       handle = Meteor.subscribe('dataset',function(){
         // destroy and rerender legend....
         console.log('subbed to dataset');
-
       });
-      
       return true;
     }
     Session.set("selectedCity",d.circle.city);
@@ -58,8 +54,6 @@ Template.aggregateData.rendered = function(){
     if(loc){
       map.setView([loc[0],loc[1]], 4);
     }
-
-
   }); 
 
   function update() {
@@ -71,34 +65,27 @@ Template.aggregateData.rendered = function(){
        }
    )
   }
-   
-
 };
 
 
 
 Template.aggregateData.helpers({
    getSummaryData : function(){
+    /*
+      
+      Structures responses to group all of a cities data into another variable called 'aniValues'
+      to iterate through when generating click-based animations
 
-    var byCity = {};
-      var data = dataset.find({},{sort: {timestamp: 1}}).fetch().filter(function (o) {
-        // ...
+    */
+    var byCity = {}, data = dataset.find({},{sort: {timestamp: 1}}).fetch().filter(function (o) {
      if(typeof byCity[o.city] == "undefined"){
           byCity[o.city] = [];
         }
         byCity[o.city].push(o);
 
       });
-
-      var data = dataset.find().fetch();
-
-      var r = [];
-      var cities = _.keys(byCity);
-
- 
-
+      var r = [], cities = _.keys(byCity);
       if(typeof byCity[cities[0]] != "undefined"){
-
         for(var key in byCity){
           var o = byCity[key][0];  
           o.aniValues = [];
@@ -106,11 +93,9 @@ Template.aggregateData.helpers({
             if(i > 0){
               o.aniValues.push(obj);
             }
-
           });
           r.push(o);
         }
-
         return r;
         // now add this data as a marker???
       }else{
@@ -118,7 +103,10 @@ Template.aggregateData.helpers({
       }
   },
   getData: function () {
-    // ...
+    /*
+      Shows all data from the sub. May apply support for a few session variables
+      to filter output additionally.
+    */
     if(typeof dataset == "undefined"){
       return false;
     }
@@ -167,15 +155,18 @@ Template.aggregateData.helpers({
 
 
 Template.singlePlot.destroyed = function(){
+  /*
+      Removes a d3 arch graph as created in singlePlot rendered
+      using a GUID of a simplified version of the ts and city.
+      Occurs when a subscription is updated .. etc.
+  */
   if(typeof this.data == "undefined" && typeof this.city != "undefined"){
     var GUID = moment(this.timestamp).format('YYYMMDDTHHMMSS') + this.city.split(' ').join();
   }else if(typeof this.data != "undefined" && typeof this.data.city != "undefined"){
     var GUID = moment(this.data.timestamp).format('YYYMMDDTHHMMSS') + this.data.city.split(' ').join('');
   }else{
-    // console.log('nothing to destroy');
     return false;
   }
-//  console.log(GUID);
   d3.selectAll(".pie_" +  GUID ).remove();
   d3.selectAll(".arc_" + GUID ).remove();
   return true;
@@ -183,6 +174,14 @@ Template.singlePlot.destroyed = function(){
 
 
 Template.singlePlot.rendered = function(){
+  /*
+      Renders pie chart graph based on single subscription row;  
+
+      row should contain animation values (aniValues)
+
+      Clicking element triggers animations.
+    
+  */
   if(typeof this.data == "undefined"){
     return false;
   }
@@ -191,18 +190,11 @@ Template.singlePlot.rendered = function(){
 
   var data = this.data;
   var color = colorRange(this.data);
-  // build a range for the cities????
-  // dont need a foreach :()
-/*
 
-** Code relating to transitons
-
-.delay(function(d, i) { return i / n * duration; })
-
-*/
-  
+  // generates the first top level record fields for inital display
+    
   data.fields = color.domain().map(function(name){
-    if(typeof data[name != "undefined"]){
+    if(typeof data[name != "undefined"] && typeof data[name] != "undefined" && name != "aniValues"){
       return {name:name, val: parseFloat(data[name]) * (name == 'airquality_raw'? 10 : 1)   }
     }
     // hmmm validation???
@@ -217,16 +209,16 @@ Template.singlePlot.rendered = function(){
       .innerRadius(radius - 30);
 
 
-  var pie = d3.layout.pie()
+  pie = d3.layout.pie()
       .sort(null)
       // swap out population value
-      .value(function(d) { return d.val; });
+      .value(function(d) {
+        // this value the same ALL THE GOD DAMN TIME! WHAT THE FUCK
+      return d.val; 
+
+     });
 
 
-
-
-
-      // ATTACH A CLICK ACTION
   var svg = d3.select("d3data").append("pie")
       .data([data])
     .enter().append("svg")
@@ -238,8 +230,14 @@ Template.singlePlot.rendered = function(){
 
   var arcG = svg.selectAll("arc" )
       .data(function(d) {
-        // returns the size of the arc within the fields
-       return pie(d.fields); 
+
+        var r = [];
+        d.fields.filter(function(o){
+          if(o.data != false){
+            r.push(o)
+          }
+        });
+       return pie(r); 
      })
     .enter().append("path")
       .attr("class", "arc_" + GUID) 
@@ -261,66 +259,66 @@ Template.singlePlot.rendered = function(){
         return (   moment(d.timestamp).format('M-D h a')  ) ; 
       });
       // set up animation to trigger on click.... hmmm
-    var iCount = 0;
-  
 
-    
-
-  svg.on('click',function(d){
-  
-
-   
-    var order = 0;
-    if(typeof interval == "undefined"){
-     var interval = Meteor.setInterval(function(){
-      
-      console.log(order);
-      console.log(d.aniValues.length);
-      console.log( d.aniValues[order]);
+  svg.on('click',
+    function(d){
+      var order = 0;
+      if(typeof interval == "undefined"){
+       var interval = Meteor.setInterval(function(){
+        
       if(order === d.aniValues.length){
         order = 0;
       }
-
-        d.aniValues[order].fields = color.domain().map(function(name){
-        if(typeof data[name != "undefined"]){
-          return {name:name, val: parseFloat(data[name]) * (name == 'airquality_raw'? 10 : 1)   }
+      d.aniValues[order].fields = color.domain().map(
+        function(name){
+          if(typeof data[name != "undefined"] && name != "aniValues"){
+            return {name:name, val: parseFloat(data[name]) * (name == 'airquality_raw'? 10 : 1)   }
+          }
+            // hmmm validation???
+          return false;
         }
-        // hmmm validation???
-        return {};
-      })
+      );
+      console.log(order);
+      svg.selectAll("text").text(function(){return moment(d.aniValues[order].timestamp).format('M-D h a') });
 
-           arcG.data(function(z){
-            console.log( pie(d.aniValues[order].fields) );
-            return pie(d.aniValues[order].fields) })
-      .transition().delay(function(d, i) { return i * 500; }).duration(500)
-        .attrTween('d', function(d) {
-             var i = d3.interpolate(d.startAngle+0.1, d.endAngle);
-             return function(t) {
-                 d.endAngle = i(t);
-               return arc(d);
-             }
-        }).each(function(d){ this._current = d;});
+     
+      arcG.data(
+        function(z){
+          var x = [];
+          var forbidFields = ['_id','fields','timestamp','city','id'];
+          for(var key in z.aniValues[order]){
+            if(_.indexOf(forbidFields,key) == -1){
+              x.push({name:key,val:z.aniValues[order][key] * (key == 'airquality_raw' ? 10 : 1)  })
+            }
+          }
+          return pie(x) }
+        )
+      .transition().delay(
+        function(d, i) { 
+          return i * 20; }
+        )
+      .duration(200)
+      .attrTween('d',
+        function(d) {
+          var i = d3.interpolate(d.startAngle+0.1, d.endAngle);
+          return function(t){
+              d.endAngle = i(t);
+              return arc(d);
+            }
+          })
+      .each(
+        function(d){ 
+          this._current = d;
+        });
 
-        order += 1;
-
-    }, 2000);
+      order += 1;
+    },
+    2000);
   }else{
     // clear interval maybe?
   }
-   
 
-      //return d.aniValues[order];
-  
-    // set up string of animations ???
-    //change();
-
-    /// toggle action!!
-    // maybe pull up dialog to filter results via time, date, city ...
-      Session.set("selectedTime",moment(d.timestamp).format());
-     
-
-  
-
+  Session.set("selectedTime",moment(d.timestamp).format());
   }); 
 
   // Store the displayed angles in _current.
