@@ -24,10 +24,11 @@ Template.aggregateData.helpers({
           o.aniValues = [];
           byCity[key].filter(function(obj,i){
             if(i > 0)
-              o.aniValues.push(obj);
+              o.aniValues.push(_.pick(obj,'sound','dust','airquality_raw','timestamp'));
           });
           r.push(o);
         }
+        console.log(r);
         return r;
         // now add this data as a marker???
       }else{

@@ -27,7 +27,7 @@ Meteor.publish("dataset",function(overCity,from,before,fields,op,resolution){
 	return dataset.find({});
 });
 
-Meteor.publish("datasetRange",function(f,b){
+Meteor.publish("datasetRange",function(f,b,resolution){
 	console.log(f);
 	console.log(b);
 	if(typeof f != "undefined" && typeof b != "undefined" && f && b){
@@ -57,7 +57,7 @@ Meteor.publish("datasetRange",function(f,b){
 
 	}
 		// get only a single day
-		return dataset.find({timestamp: { $gte: from.toDate(), $lt: before.toDate() }} );
+		return dataset.find({resolution:resolution,timestamp: { $gte: from.toDate(), $lt: before.toDate() }} );
 	
 })
 
