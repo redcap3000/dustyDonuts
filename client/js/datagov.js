@@ -28,7 +28,6 @@ Template.aggregateData.helpers({
           });
           r.push(o);
         }
-        console.log(r);
         return r;
         // now add this data as a marker???
       }else{
@@ -260,7 +259,6 @@ Template.singlePlot.rendered = function(){
     2000);
     }else{
       // clear interval maybe?
-        console.log(self.order);
         button.text('stopped');
         Meteor.clearInterval(self.interval);
         self.interval = undefined;

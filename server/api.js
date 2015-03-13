@@ -25,6 +25,8 @@ Meteor.publish("dataset",function(overCity,from,before,fields,op,resolution){
 });
 
 Meteor.publish("datasetRange",function(f,b){
+	console.log(f);
+	console.log(b);
 	if(typeof f != "undefined" && typeof b != "undefined" && f && b){
 
 		var from = moment(f,"YYYYMMDD").startOf('day');
@@ -41,9 +43,13 @@ Meteor.publish("datasetRange",function(f,b){
 		
 	
 		
-	}else{
-		from = moment().startOf('day');
-		before = moment().subtract(1,'days').endOf('day');
+	}
+	console.log(from);
+	console.log(before);
+
+	if(!from || !before){
+		var from = moment().startOf('day');
+		var before = moment().subtract(1,'days').endOf('day');
 		console.log('returning single day values');
 
 	}
