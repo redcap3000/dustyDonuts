@@ -24,11 +24,11 @@ Template.aggregateData.helpers({
           o.aniValues = [];
           byCity[key].filter(function(obj,i){
             if(i > 0)
-              o.aniValues.push(_.pick(obj,'sound','dust','airquality_raw','timestamp'));
+              o.aniValues.push(_.pick(obj,'sound','dust','airquality_raw','op','timestamp'));
           });
           r.push(o);
         }
-        console.log(r);
+        //console.log(r);
         return r;
         // now add this data as a marker???
       }else{
@@ -43,14 +43,14 @@ Template.aggregateData.helpers({
     if(typeof dataset == "undefined"){
       return false;
     }
-    renderLegend();
+    
     var selectedCity = Session.get('selectedCity');
  
 
       // else do a software side sort of city to enforce city order
       // return everything grouped by city? like an arrays []
     var data = dataset.find({},{sort: {timestamp: 1}}).fetch();
-    
+    renderLegend(data[0]);
     var byCity = {};
 
     data.filter(function(o,i){
@@ -124,7 +124,7 @@ Template.singlePlot.rendered = function(){
 
   data.fields = color.domain().map(function(name){
     if(typeof data[name != "undefined"] && typeof data[name] != "undefined" && name != "aniValues"){
-      return {name:name, val: parseFloat(data[name]) * (name == 'airquality_raw'? 10 : 1)   }
+      return {name:name, val: parseFloat(data[name]) * (name == 'airquality_raw'? 1 : 1)   }
     }
     // hmmm validation???
     return {};
@@ -209,7 +209,7 @@ Template.singlePlot.rendered = function(){
   var self = this;           
   svg.on('click',
     function(d){
-      button.text("running");
+     
       if(typeof self.interval == "undefined"){
         // hmmmmmmmm try to set to this?
        self.interval = Meteor.setInterval(function(){
@@ -221,14 +221,14 @@ Template.singlePlot.rendered = function(){
       d.aniValues[self.order].fields = color.domain().map(
         function(name){
           if(typeof data[name != "undefined"] && name != "aniValues"){
-            return {name:name, val: parseFloat(data[name]) * (name == 'airquality_raw'? 10 : 1)   }
+            return {name:name, val: parseFloat(data[name]) * (name == 'airquality_raw'? 1 : 1)   }
           }
             // hmmm validation???
           return false;
         }
       );
       svg.select("text").attr('class','text t_' + parseInt(self.order)).text(function(){return moment(d.aniValues[self.order].timestamp).format('M-D h:mm a') });
-
+       button.text(d.op);
      
       arcG.data(
         function(z){
@@ -236,7 +236,7 @@ Template.singlePlot.rendered = function(){
           var forbidFields = ['_id','fields','timestamp','city','id','op','resolution'];
           for(var key in z.aniValues[self.order]){
             if(_.indexOf(forbidFields,key) == -1){
-              x.push({name:key,val:z.aniValues[self.order][key] * (key == 'airquality_raw' ? 10 : 1)  })
+              x.push({name:key,val:z.aniValues[self.order][key] * (key == 'airquality_raw' ? 1 : 1)  })
             }
           }
           return pie(x) }

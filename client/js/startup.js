@@ -1,24 +1,24 @@
-Session.set("selectedTime",undefined);
-Session.set("selectedCity",undefined);
-Session.set("entryFilter",undefined);
-Session.set("dataReady", undefined);
-Session.set("dataResolution","5m");
-Session.set("dateEnd",moment().startOf('day').format("YYYYMMDD") );
-Session.set("dateStart", moment().subtract(3,'days').endOf('day').format("YYYYMMDD"));
 
 Meteor.startup(function(){
+  Session.set("selectedTime",undefined);
+  Session.set("selectedCity",undefined);
+  Session.set("entryFilter",undefined);
+  Session.set("dataReady", undefined);
+  Session.set("dataResolution","5m");
+  Session.set("op","mean");
+  Session.set("dateEnd",moment().startOf('day').format("YYYYMMDD") );
+  Session.set("dateStart", moment().subtract(3,'days').endOf('day').format("YYYYMMDD"));
 
 
 
   Tracker.autorun(function() {
     console.log('autorun');
-    
     var dateStart = Session.get("dateStart");
     var dateEnd = Session.get("dateEnd");
     var resolution = Session.get("dataResolution");
-
-
-    handle = Meteor.subscribe('datasetRange',dateStart,dateEnd,resolution,function(){
+    var op = Session.get("op");
+    console.log(op);
+    handle = Meteor.subscribe('datasetRange',dateStart,dateEnd,resolution,op,function(){
       console.log('subbed to dataset');
       Session.set("dataReady",false);
     
