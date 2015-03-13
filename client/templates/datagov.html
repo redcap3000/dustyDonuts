@@ -3,44 +3,37 @@
 </head>
 
 <body>
-	 <div id="map"></div>
-<h2>
+
+	{{>theMap}}
+	{{>controls}}
+		{{>aggregateData}}
+	<h2>
 	Air /dust and noise 
 </h2>
 <h4>
 	Over time
 	</h4>
-
-	{{>aggregateData}}
-
 	<small>Click circles to limit data to a single city. Click circle again to
 		view all city data</small>
 </body>
 
 <template name='controls'>
 <div class="controls">
-	<label>city</label>
-	{{! dynamically generate these...}}
-	<select class="city">
-			<option value=''>All</option>
-			<option>San Francisco</option>
-			<option>Bangalore</option>
-			<option>Boston</option>
-			<option>Geneva</option>
-			<option>Rio de Janeiro</option>
-			<option>Shanghai</option>
-			<option>Singapore</option>
-	</select>
-	<input class="entryFilter" type="text" value="25"/> <button class="filterEntry" >Filter entrys</button>
+	<input type="date" class="dateStart"/>
+	<input type="date" class="dateEnd"/>
+	<!-- select resolution -->
+	<button class="filterEntry" >Filter entrys</button>
 
 </div>
 </template>
 
 
 <template name="aggregateData">
-{{#each getSummaryData}}
-	{{>singlePlot}}
-{{/each}}
+{{#if datasetReady}}
+	{{#each getSummaryData}}
+		{{>singlePlot}}
+	{{/each}}
+{{/if}}
 </template>
 
 <template name="singlePlot">
@@ -60,4 +53,7 @@ City,dust,noise,airquality<br/>
 
 </div>
 
+</template>
+<template name="theMap">
+	 <div id="map"></div>
 </template>

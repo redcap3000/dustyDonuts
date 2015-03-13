@@ -1,15 +1,16 @@
-
-
-
-Template.aggregateData.rendered = function(){
   /*
     Renders intial 'circles' as per leaflet example....
     Pulls data from global variable in lib/d3.js
   */
 
+
+Template.theMap.rendered = function(){
+
+
   if(typeof handle == "undefined" || !handle){
     return false;
   }
+
   map = L.map('map').setView([0,0], 2);
   L.tileLayer.provider('Stamen.Watercolor').addTo(map);
   map._initPathRoot();
@@ -68,8 +69,10 @@ Template.aggregateData.rendered = function(){
 };
 
 
-
 Template.aggregateData.helpers({
+  datasetReady : function(){
+    return Session.equals("dataReady", true);
+  },
    getSummaryData : function(){
     /*
       
@@ -90,9 +93,7 @@ Template.aggregateData.helpers({
           var o = byCity[key][0];  
           o.aniValues = [];
           byCity[key].filter(function(obj,i){
-            if(i > 0){
-              o.aniValues.push(obj);
-            }
+            o.aniValues.push(obj);
           });
           r.push(o);
         }
@@ -112,20 +113,12 @@ Template.aggregateData.helpers({
     }
     renderLegend();
     var selectedCity = Session.get('selectedCity');
-    var entryFilter = Session.get("entryFilter");
+ 
 
-    if(typeof entryFilter == "undefined" || !entryFilter){
-      entryFilter = 25;
-    }else{
-      entryFilter = parseInt(entryFilter);
-    }
-    if(typeof selectedCity != "undefined" && selectedCity){
-      return dataset.find({city : selectedCity},{sort : {timestamp: 1 },limit : entryFilter }).fetch();
-    }else{
       // else do a software side sort of city to enforce city order
       // return everything grouped by city? like an arrays []
-      var data = dataset.find({},{sort: {timestamp: 1}}).fetch();
-    }
+    var data = dataset.find({},{sort: {timestamp: 1}}).fetch();
+    
     var byCity = {};
 
     data.filter(function(o,i){
@@ -192,7 +185,7 @@ Template.singlePlot.rendered = function(){
   var color = colorRange(this.data);
 
   // generates the first top level record fields for inital display
-    
+
   data.fields = color.domain().map(function(name){
     if(typeof data[name != "undefined"] && typeof data[name] != "undefined" && name != "aniValues"){
       return {name:name, val: parseFloat(data[name]) * (name == 'airquality_raw'? 10 : 1)   }
@@ -201,8 +194,8 @@ Template.singlePlot.rendered = function(){
     return {};
   })
 
-  var radius = 55,
-      padding = 0;
+  var radius = 155,
+      padding = parseInt(radius/10);
   var GUID = moment(this.data.timestamp).format('YYYMMDDTHHMMSS') + this.data.city.split(' ').join('');
   var arc = d3.svg.arc()
       .outerRadius(radius)
@@ -217,7 +210,7 @@ Template.singlePlot.rendered = function(){
       return d.val; 
 
      });
-
+  var order = 0;
 
   var svg = d3.select("d3data").append("pie")
       .data([data])
@@ -259,16 +252,32 @@ Template.singlePlot.rendered = function(){
         return (   moment(d.timestamp).format('M-D h a')  ) ; 
       });
       // set up animation to trigger on click.... hmmm
+ svg.append("text")
+       .attr("class", "text city" )
+       .attr("y",radius - 20+"px")
+      .attr("dy", ".45em")
+      .style("text-anchor", "middle").style("fill",function(d){
+        /*if(typeof cityColors[d.city] != "undefined"){
+          return cityColors[d.city];
+        }*/
+        return 'white';
+      })
+      .text(function(d) { 
+        // color code the city....
+        return d.city ; 
+      });
 
   svg.on('click',
     function(d){
-      var order = 0;
+    
       if(typeof interval == "undefined"){
        var interval = Meteor.setInterval(function(){
         
       if(order === d.aniValues.length){
         order = 0;
       }
+
+      
       d.aniValues[order].fields = color.domain().map(
         function(name){
           if(typeof data[name != "undefined"] && name != "aniValues"){
@@ -279,7 +288,7 @@ Template.singlePlot.rendered = function(){
         }
       );
       console.log(order);
-      svg.selectAll("text").text(function(){return moment(d.aniValues[order].timestamp).format('M-D h a') });
+      svg.select("text").attr('class','text t_' + parseInt(order)).text(function(){return moment(d.aniValues[order].timestamp).format('M-D h a') });
 
      
       arcG.data(
@@ -317,7 +326,7 @@ Template.singlePlot.rendered = function(){
   }else{
     // clear interval maybe?
   }
-
+  order +=1;
   Session.set("selectedTime",moment(d.timestamp).format());
   }); 
 

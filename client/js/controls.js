@@ -15,18 +15,23 @@ Template.controls.helpers({
 });
 
 Template.controls.events({
-  'change .startDate': function (evt,tmpl) {
-    var date = tmpl.find(".startDate");
+  'change .dateStart': function (evt,tmpl) {
+    var date = tmpl.find(".dateStart");
     if(typeof date != "undefined" && typeof date.value != "undefined" && date.value != ''){
-      Session.set("startDate",date.value);
+      Session.set("dateStart",moment(date.value).format());
+    }else{
+              alert("no change");
+
     }
     return true;
     // ...
   },
-  'change .endDate': function(evt,tmpl){
-    var date = tmpl.find('.endDate');
+  'change .dateEnd': function(evt,tmpl){
+    var date = tmpl.find('.dateEnd');
       if(typeof date != "undefined" && typeof date.value != "undefined" && date.value != ''){
-        Session.set("endDate",date.value);
+        Session.set("dateEnd",moment(date.value).format());
+      }else{
+        alert("no change");
       }
       return true;
   },

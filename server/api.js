@@ -17,6 +17,32 @@ Meteor.publish("dataset",function(overCity,from,before,fields,op,resolution){
 	return dataset.find({});
 });
 
+Meteor.publish("datasetRange",function(f,b){
+	if(typeof f != "undefined" && typeof b != "undefined"){
+		var from = moment(f);
+		var before = moment(b);
+
+		if(!moment.isDate(from) || !moment.isDate(before)){
+			console.log("NOT A DATE");
+			console.log(f);
+			console.log(b);
+			return dataset.find();
+		}
+		console.log(from);
+		console.log(before);
+		console.log( dataset.find({timestamp: { $gte: from, $lt: before }} ).fetch() );
+		console.log({timestamp: { $gte: from, $lt: before }});
+		if(from && before){
+			return dataset.find({timestamp: { $gte: from.toDate(), $lt: before.toDate() }} );
+		}else{
+			return dataset.find();
+		}
+	}else{
+		 console.log('return all');
+		return dataset.find();
+	}
+})
+
 Meteor.publish("datasetDigest",function(from,before,op,resolution){
 
   var byCity = {};
