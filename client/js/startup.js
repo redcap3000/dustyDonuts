@@ -3,7 +3,7 @@ Session.set("selectedCity",undefined);
 Session.set("entryFilter",undefined);
 Session.set("dataReady", undefined);
 Session.set("dateEnd",moment().startOf('day').format("YYYYMMDD") );
-Session.set("dateStart", moment().subtract(1,'days').endOf('day').format("YYYYMMDD"));
+Session.set("dateStart", moment().subtract(3,'days').endOf('day').format("YYYYMMDD"));
 
 Meteor.startup(function(){
 
@@ -25,7 +25,7 @@ Meteor.startup(function(){
         if(typeof findOne != "undefined" && findOne){
           d3.selectAll(".legend").remove();
           renderLegend(findOne);
-           Session.set("dataReady",true);
+          Session.set("dataReady",true);
         }
       }else{
         console.log('dataset not found');
