@@ -20,7 +20,7 @@ Meteor.publish("dataset",function(overCity,from,before,fields,op,resolution){
 	return dataset.find({});
 });
 
-Meteor.publish("datasetRange",function(f,b,resolution){
+Meteor.publish("datasetRange",function(f,b,resolution,op){
 	console.log(f);
 	console.log(b);
 	if(typeof f != "undefined" && typeof b != "undefined" && f && b){
@@ -34,39 +34,45 @@ Meteor.publish("datasetRange",function(f,b,resolution){
 		console.log('returning single day values');
 
 	}
+	if(typeof op == "undefined" || !op || op == null || op == ''){
+		op = 'mean'
+	}
 	if(typeof resolution == "undefined" || !resolution || resolution == null){
 		// 1 hour default resolution....
 		resolution = "1h";
 	}
+	console.log(op);
+	console.log(resolution);
 	// probably make some calls happen if a date range doesn't exist.. returns empty row etc...
 	// get only a two/three day
-	return dataset.find({resolution:resolution,timestamp: { $gte: from.toDate(), $lt: before.toDate() }} );
+	return dataset.find({op:op,resolution:resolution,timestamp: { $gte: from.toDate(), $lt: before.toDate() }} );
 	
 })
 
 
 
 Meteor.methods({
-	callAllCities: function(from,before,resolution){
+	callAllCities: function(from,before,resolution,op){
 
 		var from = moment(from,'YYYYMMDD').startOf('day').format().replace('+','-');
 		var before = moment(before,'YYYYMMDD').endOf('day').format().replace('+','-');
 		if(typeof resolution == "undefined" || !resolution || resolution == null){
 			resolution = '1h';
 		}
-		Meteor.call("govApi","Rio de Janeiro",null,null,resolution,from,before);
-		Meteor.call("govApi","Geneva",null,null,resolution,from,before);
-		Meteor.call("govApi","Boston",null,null,resolution,from,before);
-		Meteor.call("govApi","Bangalore",null,null,resolution,from,before);
-		Meteor.call("govApi","San Francisco",null,null,resolution,from,before);
-		Meteor.call("govApi","Shanghai",null,null,resolution,from,before);
-		Meteor.call("govApi","Singapore",null,null,resolution,from,before);
+		Meteor.call("govApi","Rio de Janeiro",null,op,resolution,from,before);
+		Meteor.call("govApi","Geneva",null,op,resolution,from,before);
+		Meteor.call("govApi","Boston",null,op,resolution,from,before);
+		Meteor.call("govApi","Bangalore",null,op,resolution,from,before);
+		Meteor.call("govApi","San Francisco",null,op,resolution,from,before);
+		Meteor.call("govApi","Shanghai",null,op,resolution,from,before);
+		Meteor.call("govApi","Singapore",null,op,resolution,from,before);
 		return true;
 	},
 	govApi: function (overCity,fields,op,resolution,from,before) {
 		// ...
 		if(typeof from == "undefined" || from == null){
 			//start
+			console.log('here');
 			from = moment().subtract(1,'days').startOf('day').format();
 		}else{
 			// convert string into iso timestamp...
