@@ -6,17 +6,21 @@ Session.set("dataResolution","5m");
 Session.set("dateEnd",moment().startOf('day').format("YYYYMMDD") );
 Session.set("dateStart", moment().subtract(3,'days').endOf('day').format("YYYYMMDD"));
 
-//Meteor.startup(function(){
+Meteor.startup(function(){
+
+
 
   Tracker.autorun(function() {
     console.log('autorun');
+    
     var dateStart = Session.get("dateStart");
     var dateEnd = Session.get("dateEnd");
     var resolution = Session.get("dataResolution");
 
+
     handle = Meteor.subscribe('datasetRange',dateStart,dateEnd,resolution,function(){
       console.log('subbed to dataset');
-      Session.set("dataReady",true);
+      Session.set("dataReady",false);
     
     });
 
@@ -38,4 +42,4 @@ Session.set("dateStart", moment().subtract(3,'days').endOf('day').format("YYYYMM
       console.log('loading....');
     }
   });
-//});
+});
