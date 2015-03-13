@@ -1,11 +1,12 @@
 body {
   font: 10px sans-serif;
 }
-svg {
-	width:auto;
-	float:left;
-	height:auto;
+#map { height: 280px; width:400px; }
+
+.graph{
+
 }
+
 .arc {
   stroke: #fff;
 }
@@ -14,6 +15,7 @@ svg {
 	position:fixed;
 	right:0;
 	top:0;
+  padding-top:10px;
 	height:60px;
 	background-color:white;
 	border-bottom:solid black 3px;
@@ -35,22 +37,4 @@ svg {
 .donut-section:hover {
   transform: scale(1.1);
   stroke-width: 0px;
-}
-
-.config,
-.examples {
-  margin: auto;
-}
-
-.config {
-  max-width: 700px;
-  background: #eee;
-  padding: 0 1em;
-}
-
-.examples {
-  text-align: center;
-  position:absolute;
-  top:0;
-  right:0;
 }
