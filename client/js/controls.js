@@ -33,6 +33,22 @@ Template.controls.helpers({
 });
 
 Template.controls.events({
+  'change .op' : function(evt,tmpl){  
+    var op = tmpl.find(".op");
+    if(op && typeof op.value != "undefined" && op.value != ''){
+      Session.set("op",op.value)
+      return true;
+    }
+    return false;
+  },
+  'change .resolution' : function(evt,tmpl){
+    var res = tmpl.find(".resolution");
+    if(res && typeof res.value != "undefined" && res.value != ''){
+      Session.set("op",res.value)
+      return true;
+    }
+    return false;
+  },
   'change .dateStart': function (evt,tmpl) {
     var date = tmpl.find(".dateStart");
     if(typeof date != "undefined" && typeof date.value != "undefined" && date.value != ''){

@@ -3,17 +3,43 @@
 </head>
 
 <body>
-	{{>controls}}
-	{{>aggregateData}}
 
+	{{>aggregateData}}
+	{{>controls}}
 </body>
 
 <template name='controls'>
 <div class="controls">
-
-	<input type="date" class="dateStart" />
-	<input type="date" class="dateEnd" />
-	<h4>
+	<fieldset style="width:auto;border:none;">
+		<label>start</label>
+		<input type="date" class="dateStart" />
+		<br/>
+		<label>end</label>
+		<input type="date" class="dateEnd" />
+	</fieldset>
+	<select class="op">
+		<option>mean</option>
+		<option>sumsq</option>
+		<option>count</option>
+		<option>max</option>
+		<option>min</option>
+	</select>
+	<select class="resolution">
+		<option>5m</option>
+		<option>15m</option>
+		<option>30m</option>
+		<option>1h</option>
+		<option>2h</option>
+		<option>4h</option>
+		<option>8h</option>
+		<option>12h</option>
+		<option>1d</option>
+		<option>2d</option>
+		<option>7d</option>
+		<option>14d</option>
+		<option>28d</option>
+	</select>
+	<h4 style="position:static;right:100%;text-align:center;">
 	Air /dust and noise 
 
 	<small>Click a circle to start/stop animation.</small>
@@ -33,5 +59,4 @@
 </template>
 
 <template name="singlePlot">
-	<button class="reset">reset {{city}}</button>
 </template>
