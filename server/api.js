@@ -12,8 +12,11 @@ Meteor.startup(function () {
 		Meteor.call("govApi","Singapore",null,null,'5m');
 	},60 * 60 * 30);
 });
-Meteor.publish("datasetHiResolution",function(){
+Meteor.publish("datasetHiResolution",function(from,before){
 	// only return high resolutions ?
+
+
+		
 
 
 
@@ -102,15 +105,36 @@ Meteor.publish("datasetDigest",function(from,before,op,resolution){
 });
 
 Meteor.methods({
+	cityCall5Min: function(from,before,resolution){
+
+		var from = moment(from,'YYYYMMDD').startOf('day').format().replace('+','-');
+		var before = moment(before,'YYYYMMDD').endOf('day').format().replace('+','-');
+		if(typeof resolution == "undefined" || !resolution || resolution == null){
+			resolution = '5m';
+		}
+		Meteor.call("govApi","Rio de Janeiro",null,null,resolution,from,before);
+		Meteor.call("govApi","Geneva",null,null,resolution,from,before);
+		Meteor.call("govApi","Boston",null,null,resolution,from,before);
+		Meteor.call("govApi","Bangalore",null,null,resolution,from,before);
+		Meteor.call("govApi","San Francisco",null,null,resolution,from,before);
+		Meteor.call("govApi","Shanghai",null,null,resolution,from,before);
+		Meteor.call("govApi","Singapore",null,null,resolution,from,before);
+		return true;
+	},
 	govApi: function (overCity,fields,op,resolution,from,before) {
 		// ...
-		if(typeof from == "undefined"){
+		if(typeof from == "undefined" || from == null){
 			//start
 			from = moment().subtract(1,'days').startOf('day').format();
+		}else{
+			// convert string into iso timestamp...
+			from = moment(from,'YYYYMMDD').format();
 		}
-		if(typeof before == "undefined"){
+		if(typeof before == "undefined" || before == null){
 			//end today ??
 			before = moment().startOf('day').format();
+		}else{
+			before = moment(before,'YYYYMMDD').format();
 		}
 		if (typeof fields == "undefined" || fields == null){
 			fields = 'airquality_raw,dust,sound';
