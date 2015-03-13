@@ -18,7 +18,7 @@ Template.controls.events({
   'change .dateStart': function (evt,tmpl) {
     var date = tmpl.find(".dateStart");
     if(typeof date != "undefined" && typeof date.value != "undefined" && date.value != ''){
-      Session.set("dateStart",moment(date.value).format());
+      Session.set("dateStart",moment(date.value).format("YYYYMMDD"));
     }else{
               alert("no change");
 
@@ -29,7 +29,7 @@ Template.controls.events({
   'change .dateEnd': function(evt,tmpl){
     var date = tmpl.find('.dateEnd');
       if(typeof date != "undefined" && typeof date.value != "undefined" && date.value != ''){
-        Session.set("dateEnd",moment(date.value).format());
+        Session.set("dateEnd",moment(date.value).format("YYYYMMDD"));
       }else{
         alert("no change");
       }

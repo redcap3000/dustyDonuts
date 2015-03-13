@@ -1,9 +1,0 @@
-{"objects":[
-{"circle":{"coordinates":[37.774929,-122.419416],"city":"San Francisco","color":"red"}},
-{"circle":{"coordinates":[12.971599,77.594563],"city":"Bangalore","color":"green"}},
-{"circle":{"coordinates":[42.360082,-71.058880],"city":"Boston","color":"orange"}},
-{"circle":{"coordinates":[46.198392,6.142296],"city":"Geneva"},"color":"blue"},
-{"circle":{"coordinates":[-22.906847,-43.172896],"city":"Rio de Janeiro","color":"crimson"}},
-{"circle":{"coordinates":[31.230416,121.473701],"city":"Shanghai","color":"brown"}},
-{"circle":{"coordinates":[1.352083,103.819836],"city":"Singapore","color":"black"}}
-]}

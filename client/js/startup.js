@@ -6,12 +6,9 @@ Session.set("dateStart",undefined);
 Session.set("dateEnd",undefined);
 
 
-
 Tracker.autorun(function() {
   var dateStart = Session.get("dateStart");
   var dateEnd = Session.get("dateEnd");
-
-
 
   handle = Meteor.subscribe('datasetRange',dateStart,dateEnd,function(){
     console.log('subbed to dataset');

@@ -1,73 +1,3 @@
-  /*
-    Renders intial 'circles' as per leaflet example....
-    Pulls data from global variable in lib/d3.js
-  */
-
-
-Template.theMap.rendered = function(){
-
-
-  if(typeof handle == "undefined" || !handle){
-    return false;
-  }
-
-  map = L.map('map').setView([0,0], 2);
-  L.tileLayer.provider('Stamen.Watercolor').addTo(map);
-  map._initPathRoot();
-
-  var svg = d3.select("#map").select("svg"),g = svg.append("g");
-  // Add a LatLng object to each item in the dataset
-  collection.objects.forEach(function(d) {
-   d.LatLng = new L.LatLng(d.circle.coordinates[0],
-      d.circle.coordinates[1])
-  })
-  var feature = g.selectAll("circle")
-   .data(collection.objects)
-   .enter().append("circle")
-   .style("stroke", "black")  
-   .style("opacity", .6) 
-   .style("fill", function(d){
-    if(typeof d.circle != "undefined" && typeof d.circle.color != "undefined"){
-      return d.circle.color;
-    }
-    return 'black';
-   })
-   .attr("r", 20);  
-  map.on("viewreset", update);
-  update();
-  feature.on('click',function(d){
-
-    // maybe pull up dialog to filter results via time, date, city ...
-    if(Session.equals("selectedCity",d.circle.city)){
-      // reset
-      Session.set("selectedCity",false);
-      // refresh all cirtcles? resub??
-      handle.stop();
-      map.setView([0,0], 2);
-      handle = Meteor.subscribe('dataset',function(){
-        // destroy and rerender legend....
-        console.log('subbed to dataset');
-      });
-      return true;
-    }
-    Session.set("selectedCity",d.circle.city);
-    var loc = d.circle.coordinates;
-    if(loc){
-      map.setView([loc[0],loc[1]], 4);
-    }
-  }); 
-
-  function update() {
-   feature.attr("transform", 
-   function(d) { 
-       return "translate("+ 
-    map.latLngToLayerPoint(d.LatLng).x +","+ 
-    map.latLngToLayerPoint(d.LatLng).y +")";
-       }
-   )
-  }
-};
-
 
 Template.aggregateData.helpers({
   datasetReady : function(){
@@ -90,13 +20,15 @@ Template.aggregateData.helpers({
       var r = [], cities = _.keys(byCity);
       if(typeof byCity[cities[0]] != "undefined"){
         for(var key in byCity){
-          var o = byCity[key][0];  
+          var o = byCity[key][0]; 
           o.aniValues = [];
           byCity[key].filter(function(obj,i){
-            o.aniValues.push(obj);
+            if(i > 0)
+              o.aniValues.push(obj);
           });
           r.push(o);
         }
+        console.log(r);
         return r;
         // now add this data as a marker???
       }else{
@@ -162,8 +94,12 @@ Template.singlePlot.destroyed = function(){
   }
   d3.selectAll(".pie_" +  GUID ).remove();
   d3.selectAll(".arc_" + GUID ).remove();
+  // destroy the timers!!!
+  if(typeof  this.interval != "undefined"){
+    Meteor.clearInterval(this.interval);
+  }
   return true;
-}
+};
 
 
 Template.singlePlot.rendered = function(){
@@ -210,7 +146,7 @@ Template.singlePlot.rendered = function(){
       return d.val; 
 
      });
-  var order = 0;
+  this.order = 0;
 
   var svg = d3.select("d3data").append("pie")
       .data([data])
@@ -249,7 +185,7 @@ Template.singlePlot.rendered = function(){
       })
       .text(function(d) { 
         // color code the city....
-        return (   moment(d.timestamp).format('M-D h a')  ) ; 
+        return (   moment(d.timestamp).format('M-D h:mm a')  ) ; 
       });
       // set up animation to trigger on click.... hmmm
  svg.append("text")
@@ -266,19 +202,23 @@ Template.singlePlot.rendered = function(){
         // color code the city....
         return d.city ; 
       });
-
+  var button = svg.append("text")
+              .attr("class", "text button"). attr("y","15px")
+              .attr("dy",".45em")
+              .style("text-anchor","middle").style("fill","black").text(function(d){return d.city} );
+  var self = this;           
   svg.on('click',
     function(d){
-    
-      if(typeof interval == "undefined"){
-       var interval = Meteor.setInterval(function(){
+      button.text("running");
+      if(typeof self.interval == "undefined"){
+        // hmmmmmmmm try to set to this?
+       self.interval = Meteor.setInterval(function(){
         
-      if(order === d.aniValues.length){
-        order = 0;
+      if(self.order === d.aniValues.length){
+        self.order = 0;
       }
-
       
-      d.aniValues[order].fields = color.domain().map(
+      d.aniValues[self.order].fields = color.domain().map(
         function(name){
           if(typeof data[name != "undefined"] && name != "aniValues"){
             return {name:name, val: parseFloat(data[name]) * (name == 'airquality_raw'? 10 : 1)   }
@@ -287,26 +227,21 @@ Template.singlePlot.rendered = function(){
           return false;
         }
       );
-      console.log(order);
-      svg.select("text").attr('class','text t_' + parseInt(order)).text(function(){return moment(d.aniValues[order].timestamp).format('M-D h a') });
+      svg.select("text").attr('class','text t_' + parseInt(self.order)).text(function(){return moment(d.aniValues[self.order].timestamp).format('M-D h:mm a') });
 
      
       arcG.data(
         function(z){
           var x = [];
-          var forbidFields = ['_id','fields','timestamp','city','id'];
-          for(var key in z.aniValues[order]){
+          var forbidFields = ['_id','fields','timestamp','city','id','op','resolution'];
+          for(var key in z.aniValues[self.order]){
             if(_.indexOf(forbidFields,key) == -1){
-              x.push({name:key,val:z.aniValues[order][key] * (key == 'airquality_raw' ? 10 : 1)  })
+              x.push({name:key,val:z.aniValues[self.order][key] * (key == 'airquality_raw' ? 10 : 1)  })
             }
           }
           return pie(x) }
         )
-      .transition().delay(
-        function(d, i) { 
-          return i * 20; }
-        )
-      .duration(200)
+      .transition()
       .attrTween('d',
         function(d) {
           var i = d3.interpolate(d.startAngle+0.1, d.endAngle);
@@ -320,15 +255,18 @@ Template.singlePlot.rendered = function(){
           this._current = d;
         });
 
-      order += 1;
+      self.order += 1;
     },
     2000);
-  }else{
-    // clear interval maybe?
-  }
-  order +=1;
-  Session.set("selectedTime",moment(d.timestamp).format());
-  }); 
+    }else{
+      // clear interval maybe?
+        console.log(self.order);
+        button.text('stopped');
+        Meteor.clearInterval(self.interval);
+        self.interval = undefined;
+    }
+    Session.set("selectedTime",moment(d.timestamp).format());
+    }); 
 
   // Store the displayed angles in _current.
   // Then, interpolate from _current to the new angles.

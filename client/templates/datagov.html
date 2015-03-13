@@ -3,18 +3,15 @@
 </head>
 
 <body>
-
-	{{>theMap}}
 	{{>controls}}
-		{{>aggregateData}}
+	{{>aggregateData}}
 	<h2>
 	Air /dust and noise 
-</h2>
-<h4>
+	</h2>
+	<h4>
 	Over time
 	</h4>
-	<small>Click circles to limit data to a single city. Click circle again to
-		view all city data</small>
+	<small>Click a circle to start/stop animation.</small>
 </body>
 
 <template name='controls'>
@@ -22,8 +19,6 @@
 	<input type="date" class="dateStart"/>
 	<input type="date" class="dateEnd"/>
 	<!-- select resolution -->
-	<button class="filterEntry" >Filter entrys</button>
-
 </div>
 </template>
 
@@ -37,23 +32,5 @@
 </template>
 
 <template name="singlePlot">
-</template>
-<template name="multiPlot">
-</template>
-<template name="sampleCSV">
-City,dust,noise,airquality<br/>
-{{#each getRows}}
-{{city}},{{dust}},{{sound}},{{airquality_raw}}<br/>
-{{/each}}
-</template>
-
-<template name="chart">
-<!-- JS only example of a reuseable d3.js donut maker. I like to call it Homer -->
-<div class='examples'>
-
-</div>
-
-</template>
-<template name="theMap">
-	 <div id="map"></div>
+	<button class="reset">reset {{city}}</button>
 </template>
