@@ -11,6 +11,24 @@ Template.controls.helpers({
   },
   selectedCity :function(){
     return Session.get("selectedCity");
+  },
+  datasetReady : function(){
+    var dataset = Session.get("dataReady");
+    if(dataset && typeof dataset != "undefined"){
+      return dataset;
+    }
+    return false;
+  },
+  getSelectedDateStart : function(){
+    console.log('what the fuck');
+    var date = Session.get("dateStart");
+    return moment(date,"YYYYMMDD").format("YYYY-MM-DD");
+
+  },
+  getSelectedDateEnd : function(){
+        return moment(date,"YYYYMMDD").format("YYYY-MM-DD");
+
+    return Session.get("dateEnd");
   }
 });
 
@@ -18,10 +36,10 @@ Template.controls.events({
   'change .dateStart': function (evt,tmpl) {
     var date = tmpl.find(".dateStart");
     if(typeof date != "undefined" && typeof date.value != "undefined" && date.value != ''){
+      console.log(date.value);
       Session.set("dateStart",moment(date.value).format("YYYYMMDD"));
     }else{
-              alert("no change");
-
+      alert("no change");
     }
     return true;
     // ...
