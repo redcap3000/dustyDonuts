@@ -1,7 +1,8 @@
 Meteor.startup(function () {
 	// refresh hourly? or more?
 	Meteor.setInterval(function(){
-
+		// to avoid less complex calls go ahead and set from/before
+		// to be set to around the value of the delay....
 		console.log('doing interval lookup');
 		Meteor.call("govApi","Rio de Janeiro",null,null,'5m');
 		Meteor.call("govApi","Geneva",null,null,'5m');
@@ -10,18 +11,10 @@ Meteor.startup(function () {
 		Meteor.call("govApi","San Francisco",null,null,'5m');
 		Meteor.call("govApi","Shanghai",null,null,'5m');
 		Meteor.call("govApi","Singapore",null,null,'5m');
-	},60 * 60 * 30);
+
+	}, 60 * 4  * 1000);
 });
-Meteor.publish("datasetHiResolution",function(from,before){
-	// only return high resolutions ?
 
-
-		
-
-
-
-
-});
 Meteor.publish("dataset",function(overCity,from,before,fields,op,resolution){
 	// get one day only by default ? 
 	return dataset.find({});
@@ -31,24 +24,9 @@ Meteor.publish("datasetRange",function(f,b,resolution){
 	console.log(f);
 	console.log(b);
 	if(typeof f != "undefined" && typeof b != "undefined" && f && b){
-
 		var from = moment(f,"YYYYMMDD").startOf('day');
 		var before = moment(b,"YYYYMMDD").endOf('day');
-
-		//if(!moment.isDate(from) || !moment.isDate(before)){
-		//	console.log("NOT A DATE");
-		//	console.log(f);
-		//	console.log(b);
-		//	from = moment().toDate();
-		//	before = moment().subtract(1,'days').toDate();
-		//	console.log(before);
-		//	console.log("returning default dateset");
-		
-	
-		
 	}
-	console.log(from);
-	console.log(before);
 
 	if(!from || !before){
 		var from = moment().startOf('day');
@@ -56,61 +34,25 @@ Meteor.publish("datasetRange",function(f,b,resolution){
 		console.log('returning single day values');
 
 	}
-		// get only a single day
-		return dataset.find({resolution:resolution,timestamp: { $gte: from.toDate(), $lt: before.toDate() }} );
+	if(typeof resolution == "undefined" || !resolution || resolution == null){
+		// 1 hour default resolution....
+		resolution = "1h";
+	}
+	// probably make some calls happen if a date range doesn't exist.. returns empty row etc...
+	// get only a two/three day
+	return dataset.find({resolution:resolution,timestamp: { $gte: from.toDate(), $lt: before.toDate() }} );
 	
 })
 
-Meteor.publish("datasetDigest",function(from,before,op,resolution){
 
-  var byCity = {};
-    var data = dataset.find({},{sort: {timestamp: 1}}).map(function (o) {
-    	// ...
-   if(typeof byCity[o.city] == "undefined"){
-        byCity[o.city] = [];
-      }
-      byCity[o.city].push(o);
-
-    });;
-  
-
-    var r = [];
-    var cities = _.keys(byCity);
-
-    if(typeof byCity[cities[0]] != "undefined"){
-    	console.log(cities);
-    	for (var i = 0; i < cities.length; i++) {
-    		console.log(byCity[cities[i]].length);
-    		var theCity = {}
-    		for(var z = 0; z < byCity[cities[i]].length;z ++){
-    			if(z === 0){
-    				theCity.aniValues = [byCity[cities[i]][z]];
-    			}else{
-    				theCity.aniValues.push(byCity[cities[i]][z]);
-    			}
-    			if(z === byCity[cities[i]].length - 1 ){
-    				console.log("end of cities");
-    				console.log(theCity);
-    			}
-    		}
-    		r.push(theCity);
-    	};
-//      console.log(byCity);
-      return r;
-      // now add this data as a marker???
-    }else{
-      return [];
-    }
-
-});
 
 Meteor.methods({
-	cityCall5Min: function(from,before,resolution){
+	callAllCities: function(from,before,resolution){
 
 		var from = moment(from,'YYYYMMDD').startOf('day').format().replace('+','-');
 		var before = moment(before,'YYYYMMDD').endOf('day').format().replace('+','-');
 		if(typeof resolution == "undefined" || !resolution || resolution == null){
-			resolution = '5m';
+			resolution = '1h';
 		}
 		Meteor.call("govApi","Rio de Janeiro",null,null,resolution,from,before);
 		Meteor.call("govApi","Geneva",null,null,resolution,from,before);
