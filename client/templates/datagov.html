@@ -24,21 +24,13 @@
 		<option>max</option>
 		<option>min</option>
 	</select>
-	<select class="resolution">
-		<option>5m</option>
-		<option>15m</option>
-		<option>30m</option>
-		<option>1h</option>
-		<option>2h</option>
-		<option>4h</option>
-		<option>8h</option>
-		<option>12h</option>
-		<option>1d</option>
-		<option>2d</option>
-		<option>7d</option>
-		<option>14d</option>
-		<option>28d</option>
-	</select>
+	{{#unless getDataRefresh}}
+
+	<button onClick = "Session.set('dataRefresh',true)">Force data refresh</button>
+	{{else}}
+	<b>Force refresh request sent</b>
+	{{/unless}}
+
 	<h4 style="position:static;right:100%;text-align:center;">
 	Air /dust and noise 
 

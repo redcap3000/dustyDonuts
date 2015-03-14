@@ -29,6 +29,9 @@ Template.controls.helpers({
         return moment(date,"YYYYMMDD").format("YYYY-MM-DD");
 
     return Session.get("dateEnd");
+  },
+  getDataRefresh : function(){
+    return Session.get("dataRefresh");
   }
 });
 

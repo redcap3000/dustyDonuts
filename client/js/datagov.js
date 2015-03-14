@@ -30,53 +30,11 @@ Template.aggregateData.helpers({
           r.push(o);
         }
         return r;
-        // now add this data as a marker???
       }else{
         return [];
       }
-  },
-  getData: function () {
-    /*
-      Shows all data from the sub. May apply support for a few session variables
-      to filter output additionally.
-    */
-    if(typeof dataset == "undefined"){
-      return false;
-    }
-    
-    var selectedCity = Session.get('selectedCity');
- 
-
-      // else do a software side sort of city to enforce city order
-      // return everything grouped by city? like an arrays []
-    var data = dataset.find({},{sort: {timestamp: 1}}).fetch();
-    renderLegend(data[0]);
-    var byCity = {};
-
-    data.filter(function(o,i){
-      if(typeof byCity[o.city] == "undefined"){
-        byCity[o.city] = [];
-      }
-      byCity[o.city].push(o);
-    });
-    
-    var r = [];
-    var cities = _.keys(byCity);
-    if(typeof byCity[cities[0]] != "undefined"){
-
-      for (var i = 0; i < entryFilter; i++) {
-        cities.filter(function(cityName){
-          r.push(byCity[cityName][i]);
-        });
-      }
-      return r;
-      // now add this data as a marker???
-    }else{
-      return [];
-    }
   }
 });
-
 
 
 Template.singlePlot.destroyed = function(){
@@ -210,7 +168,7 @@ Template.singlePlot.rendered = function(){
   var self = this;           
   svg.on('click',
     function(d){
-     
+      console.log(d);
       if(typeof self.interval == "undefined"){
         // hmmmmmmmm try to set to this?
        self.interval = Meteor.setInterval(function(){
@@ -218,10 +176,10 @@ Template.singlePlot.rendered = function(){
       if(self.order === d.aniValues.length){
         self.order = 0;
       }
-
       d.aniValues[self.order].fields = color.domain().map(
         function(name){
-          if(typeof name != "undefined" && typeof data[name != "undefined"] && name != "aniValues"){
+          // careful here...
+          if(typeof name != "undefined" && typeof d.aniValues[self.order][name != "undefined"] && name != "aniValues"){
             return {name:name, val: parseFloat(d.aniValues[self.order][name]) * (name == 'airquality_raw'? 1 : 1)   }
           }
             // hmmm validation???

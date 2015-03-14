@@ -3,16 +3,31 @@ Meteor.startup(function () {
 	Meteor.setInterval(function(){
 		// to avoid less complex calls go ahead and set from/before
 		// to be set to around the value of the delay....
-		console.log('doing interval lookup');
-		Meteor.call("govApi","Rio de Janeiro",null,null,'5m');
-		Meteor.call("govApi","Geneva",null,null,'5m');
-		Meteor.call("govApi","Boston",null,null,'5m');
-		Meteor.call("govApi","Bangalore",null,null,'5m');
-		Meteor.call("govApi","San Francisco",null,null,'5m');
-		Meteor.call("govApi","Shanghai",null,null,'5m');
-		Meteor.call("govApi","Singapore",null,null,'5m');
+		console.log('doing 4 hour total data interval lookup');
+		// run on timeouts prolly
+		Meteor.call("callAllCities",null,null,"4h","mean",function(){
+			Meteor.call("callAllCities",null,null,"4h","sumsq",function(){
+				Meteor.call("callAllCities",null,null,"4h","max",function(){
+					Meteor.call("callAllCities",null,null,"4h","min",function(){
+						Meteor.call("callAllCities",null,null,"4h","count");
+					});
+				});
+			});
+		});
+	}, 60 * 60 * 4  * 1000);
 
-	}, 60 * 4  * 1000);
+	Meteor.setInterval(function(){
+		console.log('doing5 min total data interval lookup');
+		Meteor.call("callAllCities",null,null,"5m","mean",function(){
+			Meteor.call("callAllCities",null,null,"5m","sumsq",function(){
+				Meteor.call("callAllCities",null,null,"5m","max",function(){
+					Meteor.call("callAllCities",null,null,"5m","min",function(){
+						Meteor.call("callAllCities",null,null,"5m","count");
+					});
+				});
+			});
+		});
+	}, 60 * 4 * 1000)
 });
 
 Meteor.publish("dataset",function(overCity,from,before,fields,op,resolution){
@@ -20,7 +35,8 @@ Meteor.publish("dataset",function(overCity,from,before,fields,op,resolution){
 	return dataset.find({});
 });
 
-Meteor.publish("datasetRange",function(f,b,resolution,op){
+Meteor.publish("datasetRange",function(f,b,resolution,op,refresh){
+
 	console.log(f);
 	console.log(b);
 	if(typeof f != "undefined" && typeof b != "undefined" && f && b){
@@ -41,8 +57,18 @@ Meteor.publish("datasetRange",function(f,b,resolution,op){
 		// 1 hour default resolution....
 		resolution = "1h";
 	}
+
+
+	if(refresh == true){
+		// notify when this is finished...
+		Meteor.call("callAllCities",from.format("YYYYMMDD"),before.format("YYYYMMDD"),resolution,op);
+	}
+
 	console.log(op);
 	console.log(resolution);
+	/*
+		todo support resolution to look up rounded date stamps instead of requerying...
+	*/
 	// probably make some calls happen if a date range doesn't exist.. returns empty row etc...
 	// get only a two/three day
 	return dataset.find({op:op,resolution:resolution,timestamp: { $gte: from.toDate(), $lt: before.toDate() }} );
@@ -53,9 +79,16 @@ Meteor.publish("datasetRange",function(f,b,resolution,op){
 
 Meteor.methods({
 	callAllCities: function(from,before,resolution,op){
-
-		var from = moment(from,'YYYYMMDD').startOf('day').format().replace('+','-');
-		var before = moment(before,'YYYYMMDD').endOf('day').format().replace('+','-');
+		if(typeof from != undefined && from != false && from != null){
+			from = moment(from,'YYYYMMDD').startOf('day').format().replace('+','-');
+		}else{
+			from = undefined;
+		}
+		if(typeof before != "undefined" && before != false && before != null){
+			before = moment(before,'YYYYMMDD').endOf('day').format().replace('+','-');
+		}else{
+			before = undefined;
+		}
 		if(typeof resolution == "undefined" || !resolution || resolution == null){
 			resolution = '1h';
 		}
