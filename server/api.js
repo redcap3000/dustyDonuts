@@ -35,8 +35,17 @@ Meteor.publish("dataset",function(overCity,from,before,fields,op,resolution){
 	return dataset.find({});
 });
 
-Meteor.publish("datasetRange",function(f,b,resolution,op,refresh){
+Meteor.publish("datasetRange",function(cities,f,b,resolution,op,refresh){
+	// parse cities string to use for mongo query
 
+	if(typeof cities != "undefined" && cities != null && cities && typeof cities == "string"){
+			console.log(cities);
+	}else{
+		// this.ready()?
+		console.log("City list not passed to param");
+		this.ready();
+		return false;
+	}
 	console.log(f);
 	console.log(b);
 	if(typeof f != "undefined" && typeof b != "undefined" && f && b){
@@ -61,7 +70,7 @@ Meteor.publish("datasetRange",function(f,b,resolution,op,refresh){
 
 	if(refresh == true){
 		// notify when this is finished...
-		Meteor.call("callAllCities",from.format("YYYYMMDD"),before.format("YYYYMMDD"),resolution,op);
+		Meteor.call("callAllCities",cities,from.format("YYYYMMDD"),before.format("YYYYMMDD"),resolution,op);
 	}
 
 	console.log(op);
@@ -71,14 +80,29 @@ Meteor.publish("datasetRange",function(f,b,resolution,op,refresh){
 	*/
 	// probably make some calls happen if a date range doesn't exist.. returns empty row etc...
 	// get only a two/three day
-	return dataset.find({op:op,resolution:resolution,timestamp: { $gte: from.toDate(), $lt: before.toDate() }} );
+	//console.log(cities.split(","));
+	var c = cities.split(',');
+	c=c.filter(Boolean);
+	console.log(c);
+	return dataset.find({city : { "$in" : c } ,op:op,resolution:resolution,timestamp: { $gte: from.toDate(), $lt: before.toDate() }} );
 	
 })
 
 
 
 Meteor.methods({
-	callAllCities: function(from,before,resolution,op){
+	callAllCities: function(cities,from,before,resolution,op){
+		// make cities string an array
+		if(typeof cities != "undefined" && typeof cities == "string"){
+			var cities = cities.split(',');
+			cities=cities.filter(Boolean);
+			console.log(cities + 'call all cities');
+		}else if(typeof cities == "array" && cities.length > 0){
+			;
+		}else{
+			console.log('cities passed to callAllCities had an error');
+			return false;
+		}
 		if(typeof from != undefined && from != false && from != null){
 			from = moment(from,'YYYYMMDD').startOf('day').format().replace('+','-');
 		}else{
@@ -92,13 +116,10 @@ Meteor.methods({
 		if(typeof resolution == "undefined" || !resolution || resolution == null){
 			resolution = '1h';
 		}
-		Meteor.call("govApi","Rio de Janeiro",null,op,resolution,from,before);
-		Meteor.call("govApi","Geneva",null,op,resolution,from,before);
-		Meteor.call("govApi","Boston",null,op,resolution,from,before);
-		Meteor.call("govApi","Bangalore",null,op,resolution,from,before);
-		Meteor.call("govApi","San Francisco",null,op,resolution,from,before);
-		Meteor.call("govApi","Shanghai",null,op,resolution,from,before);
-		Meteor.call("govApi","Singapore",null,op,resolution,from,before);
+		cities.filter(function(a){
+			Meteor.call("govApi",a,null,op,resolution,from,before);
+		});
+	
 		return true;
 	},
 	govApi: function (overCity,fields,op,resolution,from,before) {
