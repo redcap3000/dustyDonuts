@@ -83,7 +83,7 @@ Template.singlePlot.rendered = function(){
 
   data.fields = color.domain().map(function(name){
     if(typeof data[name != "undefined"] && typeof data[name] != "undefined" && name != "aniValues"){
-      return {name:name, val: parseFloat(data[name]) * (name == 'airquality_raw'? 1 : 1)   }
+      return {name:name, val: (data.op == "count"? parseInt(data[name]) : parseFloat(data[name]) * (name == 'airquality_raw'? 1 : 1) )  }
     }
     // hmmm validation???
     return {};
@@ -168,7 +168,6 @@ Template.singlePlot.rendered = function(){
   var self = this;           
   svg.on('click',
     function(d){
-      console.log(d);
       if(typeof self.interval == "undefined"){
         // hmmmmmmmm try to set to this?
        self.interval = Meteor.setInterval(function(){
@@ -179,8 +178,8 @@ Template.singlePlot.rendered = function(){
       d.aniValues[self.order].fields = color.domain().map(
         function(name){
           // careful here...
-          if(typeof name != "undefined" && typeof d.aniValues[self.order][name != "undefined"] && name != "aniValues"){
-            return {name:name, val: parseFloat(d.aniValues[self.order][name]) * (name == 'airquality_raw'? 1 : 1)   }
+          if(typeof name != "undefined" && typeof d.aniValues[self.order][name] != "undefined" && name != "aniValues"){
+            return {name:name, val: (d.op == "count"? parseInt(d.aniValues[self.order][name]) :parseFloat(d.aniValues[self.order][name])) * (name == 'airquality_raw'? 1 : 1)   }
           }
             // hmmm validation???
           return {};
