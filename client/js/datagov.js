@@ -22,13 +22,13 @@ Template.aggregateData.helpers({
         for(var key in byCity){
           var o = byCity[key][0]; 
           o.aniValues = [];
+          // fields out of order???
           byCity[key].filter(function(obj,i){
             if(i > 0)
-              o.aniValues.push(_.pick(obj,'sound','dust','airquality_raw','op','timestamp'));
+              o.aniValues.push(_.pick(obj,'sound','dust','airquality_raw','timestamp'));
           });
           r.push(o);
         }
-        //console.log(r);
         return r;
         // now add this data as a marker???
       }else{
@@ -118,6 +118,7 @@ Template.singlePlot.rendered = function(){
   var svg = d3.select("#map").select("svg"),g = svg.append("g");
 
   var data = this.data;
+  // probably sort the fields in color range...
   var color = colorRange(this.data);
 
   // generates the first top level record fields for inital display
@@ -217,14 +218,14 @@ Template.singlePlot.rendered = function(){
       if(self.order === d.aniValues.length){
         self.order = 0;
       }
-      
+
       d.aniValues[self.order].fields = color.domain().map(
         function(name){
-          if(typeof data[name != "undefined"] && name != "aniValues"){
-            return {name:name, val: parseFloat(data[name]) * (name == 'airquality_raw'? 1 : 1)   }
+          if(typeof name != "undefined" && typeof data[name != "undefined"] && name != "aniValues"){
+            return {name:name, val: parseFloat(d.aniValues[self.order][name]) * (name == 'airquality_raw'? 1 : 1)   }
           }
             // hmmm validation???
-          return false;
+          return {};
         }
       );
       svg.select("text").attr('class','text t_' + parseInt(self.order)).text(function(){return moment(d.aniValues[self.order].timestamp).format('M-D h:mm a') });

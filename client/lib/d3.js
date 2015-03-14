@@ -21,7 +21,8 @@ collection = {"objects":[
 renderLegend = function (obj) {
   var radius = 74,
       padding = 10;
-  var color = colorRange(obj);
+
+  var color = colorRange(_.pick(obj,'sound','dust','airquality_raw'));
   if(!color || typeof obj == "undefined"){
     return false;
   }
@@ -50,7 +51,7 @@ renderLegend = function (obj) {
       .text(function(d) { return d; });
 };
 colorRange = function(aDataset){
-
+  aDataset = _.pick(aDataset,'sound','dust','airquality_raw');
   var color = d3.scale.ordinal()
       .range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
 
