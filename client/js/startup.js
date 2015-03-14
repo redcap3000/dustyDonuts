@@ -5,7 +5,7 @@ Meteor.startup(function(){
   Session.set("entryFilter",undefined);
   Session.set("dataReady", undefined);
   Session.set("dataRefresh",false)
-  Session.set("dataResolution","4h");
+  Session.set("resolution","4h");
   Session.set("op","mean");
   Session.set("dateEnd",moment().startOf('day').format("YYYYMMDD") );
   Session.set("dateStart", moment().subtract(3,'days').endOf('day').format("YYYYMMDD"));
@@ -16,7 +16,7 @@ Meteor.startup(function(){
     console.log('autorun');
     var dateStart = Session.get("dateStart");
     var dateEnd = Session.get("dateEnd");
-    var resolution = Session.get("dataResolution");
+    var resolution = Session.get("resolution");
     var refresh = Session.get("dataRefresh");
     var op = Session.get("op");
     console.log(op);

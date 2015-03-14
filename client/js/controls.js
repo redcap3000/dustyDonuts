@@ -47,7 +47,7 @@ Template.controls.events({
   'change .resolution' : function(evt,tmpl){
     var res = tmpl.find(".resolution");
     if(res && typeof res.value != "undefined" && res.value != ''){
-      Session.set("op",res.value)
+      Session.set("resolution",res.value)
       return true;
     }
     return false;
