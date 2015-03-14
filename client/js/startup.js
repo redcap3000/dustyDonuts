@@ -1,6 +1,7 @@
 
 Meteor.startup(function(){
   Session.set("selectedTime",undefined);
+  Session.set("cityFilter","Boston,Rio de Janeiro,San Francisco,Shanghai,Geneva")
   Session.set("selectedCity",undefined);
   Session.set("entryFilter",undefined);
   Session.set("dataReady", undefined);
@@ -10,6 +11,38 @@ Meteor.startup(function(){
   Session.set("dateEnd",moment().startOf('day').format("YYYYMMDD") );
   Session.set("dateStart", moment().subtract(3,'days').endOf('day').format("YYYYMMDD"));
 
+  addCity = function(city){
+    console.log(city);
+    var cities = Session.get("cityFilter");
+    if(cities){
+      var value = cities.search(city);
+      if(value == -1){
+        cities += ',' + city;
+        Session.set("cityFilter",cities);
+      }else{
+        // dont readd a city thats already there?
+        // shouldn't happen...
+      }
+    }
+  }
+  removeCity = function(city){
+    console.log('remove' + city);
+    var cities = Session.get("cityFilter");
+    if(cities){
+      if(cities.search(city) > -1){
+        console.log(cities);
+        // ahh comma check????
+        cities = cities.replace(city,"");
+        console.log(cities);
+        Session.set("cityFilter",cities);
+      }else{
+        console.log('coudl not find ' + city + ' in ' + cities);
+        // not here probably add it back ?
+        // infinte loop warning?
+        //addCity(city);
+      }
+    }
+  }
 
 
   Tracker.autorun(function() {
@@ -19,8 +52,9 @@ Meteor.startup(function(){
     var resolution = Session.get("resolution");
     var refresh = Session.get("dataRefresh");
     var op = Session.get("op");
+    var cities = Session.get("cityFilter");
     console.log(op);
-    handle = Meteor.subscribe('datasetRange',dateStart,dateEnd,resolution,op,refresh,function(){
+    handle = Meteor.subscribe('datasetRange',cities,dateStart,dateEnd,resolution,op,refresh,function(){
       console.log('subbed to dataset');
       Session.set("dataReady",false);
       if(Session.equals("dataRefresh",true)){

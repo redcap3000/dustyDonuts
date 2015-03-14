@@ -1,5 +1,25 @@
 
 Template.controls.helpers({
+  isVisible : function(){
+    var cities = Session.get("cityFilter");
+    if(cities.search(this + '') > -1){
+      return true;
+    }
+    return false;
+
+//    if()
+  },
+  getCities : function(){
+
+    var cities = "Bangalore,Boston,Rio de Janeiro,San Francisco,Shanghai,Singapore,Geneva";
+    var c = cities.split(",");
+    if(c){
+      console.log(c);
+      return c;
+    }
+  
+
+  },
   data : function(){
     return {datetime1: moment.utc().toDate() ,datetime2 : moment.utc().toDate()}
   },

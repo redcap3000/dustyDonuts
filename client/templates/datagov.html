@@ -10,13 +10,14 @@
 
 <template name='controls'>
 <div class="controls">
+
 	<fieldset style="width:auto;border:none;">
 		<label>start</label>
 		<input type="date" class="dateStart" />
-		<br/>
+	
 		<label>end</label>
 		<input type="date" class="dateEnd" />
-	</fieldset>
+
 	<select class="op">
 		<option>mean</option>
 		<option>sumsq</option>
@@ -29,13 +30,21 @@
 		<option>5m</option>
 		<option>1h</option>
 	</select>
-
-	{{#unless getDataRefresh}}
-
-	<button onClick = "Session.set('dataRefresh',true)">Force data refresh</button>
-	{{else}}
-	<b>Force refresh request sent</b>
+		{{#unless getDataRefresh}}
+		<button onClick = "Session.set('dataRefresh',true)">Force data refresh</button>
+		{{else}}
+		<b>Force refresh request sent</b>
 	{{/unless}}
+	</fieldset>
+	
+		{{#each getCities}}
+			{{#unless isVisible}}
+				<input onClick = "addCity('{{this}}');" class="cityBox" type="checkbox" name="{{this}}">{{this}}
+			{{else}}
+				<input onClick = "removeCity('{{this}}');" class="cityBox" type="checkbox" name="{{this}}"  checked>{{this}}
+			{{/unless}}
+		{{/each}}
+
 
 	<h4 style="position:static;right:100%;text-align:center;">
 	Air /dust and noise 
@@ -46,13 +55,44 @@
 	<!-- select resolution -->
 </div>
 </template>
-<template name="help">
-
-</template>
 <template name="about">
+<div class="about">
+	<h1>Dusty Donuts</h1>
+	<h4>Visualisation of datacanvas data to illustrate change in noise/dust and air quality.</h4>
+
+
+	<p>The streams displayed are the aggregate values of air quality, noise, and dust over specified intervals of all the cities participating. **Clicking on a city begins the animation cycle**
+
+
+	<p>
+	This is a project written in <a href="http://meteor.com">Meteor</a> (node.js web application framework) as part of the <a href="http://datacanvas.org/sense-your-city/">datacanvas.org 2015 data art competition</a>
+	</p>
+
+
+	##Whats datacanvas?
+	Datacanvas is a project that deploys banks of sensors to participating cities. The cities currently involved are :
+
+	Bangalore Boston Rio de Janeiro San Francisco Shanghai Singapore Bangalore Geneva</p>
+</div>
+</template>
+<template name="help">
 	<h2>Faq</h2>
 
-	</template>
+	<h3>Why so slow?</h3>
+	<p>The data in the datagov responses are quite verbose. Also a single cities graph can be comprised of dozens, if not hundreds of datasets sorted by time depending on the resolution and the start/end ranges.</p>
+
+	<h3>How to I get started</h3>
+	<p>The first data sets should appear with the latest data from the past three days. You may enter new dates
+		in 'start end'</p>
+
+	<h3>Great I selected some dates but nothing happened!</h3>
+		<p>Press the force data refresh button and be patient!</p>
+
+	<h3>I need more speed</h3>
+		<p>Try only selecting a single day in the date range, and the highest resolution available (4 hours)</p>
+		<p>Fork the project and run it on your own servers.... or play around with compressing the data sets by shortening key names (or removing them altogether.)</p>
+
+</template>
 
 <template name="aggregateData">
 {{#if datasetReady}}
