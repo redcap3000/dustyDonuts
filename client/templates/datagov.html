@@ -24,6 +24,12 @@
 		<option>max</option>
 		<option>min</option>
 	</select>
+	<select class="resolution">
+		<option>4h</option>
+		<option>5m</option>
+		<option>1h</option>
+	</select>
+
 	{{#unless getDataRefresh}}
 
 	<button onClick = "Session.set('dataRefresh',true)">Force data refresh</button>
@@ -40,7 +46,13 @@
 	<!-- select resolution -->
 </div>
 </template>
+<template name="help">
 
+</template>
+<template name="about">
+	<h2>Faq</h2>
+
+	</template>
 
 <template name="aggregateData">
 {{#if datasetReady}}
