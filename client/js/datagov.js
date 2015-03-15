@@ -10,6 +10,7 @@ Template.aggregateData.helpers({
       to iterate through when generating click-based animations
 
     */
+    var validFields = 'airquality_raw temperature humidity light sound dust';
     var byCity = {}, data = dataset.find({},{sort: {timestamp: 1}}).fetch().filter(function (o) {
      if(typeof byCity[o.city] == "undefined"){
           byCity[o.city] = [];
@@ -18,17 +19,49 @@ Template.aggregateData.helpers({
 
       });
       var r = [], cities = _.keys(byCity);
+      var fieldsFilter = Session.get("fieldsFilter");
+
       if(typeof byCity[cities[0]] != "undefined"){
         for(var key in byCity){
           var o = byCity[key][0]; 
           o.aniValues = [];
           // fields out of order???
           byCity[key].filter(function(obj,i){
-            if(i > 0)
-              o.aniValues.push(_.pick(obj,'sound','dust','airquality_raw','timestamp'));
+            if(i > 0){
+              // dont think this is working :(
+
+                //)
+
+              console.log(fieldsFilter);
+              var obj2 = {};
+              for(var k in obj){
+                if(fieldsFilter.search(k) > -1 && fieldsFilter.search(k) !== 0 || k == "timestamp" ){
+                  obj2[k] = obj[k];
+                }
+              }
+              console.log(obj2);
+              o.aniValues.push(obj2);
+            }
           });
-          r.push(o);
+          var obj3 = {};
+         for(var k in o){
+            if(validFields.search(k) > -1){
+              if(fieldsFilter.search(k) == -1 ){
+                // if field is missing dont put it in ... as long as key is one of the search fields?
+                ;
+              }else{
+                console.log('adding field to obj3');
+                obj3[k] = o[k];
+              }
+            }else{
+              console.log ('adding field' + k );
+              obj3[k] = o[k];
+            }
+          }
+          r.push(obj3);
         }
+        // get rid of top level values too !!
+        console.log(r);
         return r;
       }else{
         return [];

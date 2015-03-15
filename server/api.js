@@ -35,7 +35,7 @@ Meteor.publish("dataset",function(overCity,from,before,fields,op,resolution){
 	return dataset.find({});
 });
 
-Meteor.publish("datasetRange",function(cities,f,b,resolution,op,refresh){
+Meteor.publish("datasetRange",function(cities,f,b,resolution,op,fields,refresh){
 	// parse cities string to use for mongo query
 
 	if(typeof cities != "undefined" && cities != null && cities && typeof cities == "string"){
@@ -46,8 +46,16 @@ Meteor.publish("datasetRange",function(cities,f,b,resolution,op,refresh){
 		this.ready();
 		return false;
 	}
-	console.log(f);
-	console.log(b);
+	
+	if(typeof fields == "undefined" || !fields || fields == null){
+		fields = 'airquality_raw,dust,sound';
+	}else{
+		// default fields
+
+	}
+	var fields_array = fields.split(',');
+	fields_array=fields_array.filter(Boolean);
+
 	if(typeof f != "undefined" && typeof b != "undefined" && f && b){
 		var from = moment(f,"YYYYMMDD").startOf('day');
 		var before = moment(b,"YYYYMMDD").endOf('day');
@@ -70,7 +78,9 @@ Meteor.publish("datasetRange",function(cities,f,b,resolution,op,refresh){
 
 	if(refresh == true){
 		// notify when this is finished...
-		Meteor.call("callAllCities",cities,from.format("YYYYMMDD"),before.format("YYYYMMDD"),resolution,op);
+		console.log('refreshing');
+		console.log(fields);
+		Meteor.call("callAllCities",cities,from.format("YYYYMMDD"),before.format("YYYYMMDD"),resolution,op,fields);
 	}
 
 	console.log(op);
@@ -83,15 +93,22 @@ Meteor.publish("datasetRange",function(cities,f,b,resolution,op,refresh){
 	//console.log(cities.split(","));
 	var c = cities.split(',');
 	c=c.filter(Boolean);
-	console.log(c);
-	return dataset.find({city : { "$in" : c } ,op:op,resolution:resolution,timestamp: { $gte: from.toDate(), $lt: before.toDate() }} );
+	//console.log(c);
+	var q = {city : { "$in" : c } ,op:op,resolution:resolution,timestamp: { $gte: from.toDate(), $lt: before.toDate() }};
+	// find the fields!!!
+	fields_array.filter(function(field){
+		q[field] = {"$exists" : true};
+	})
+	console.log(q);
+	return dataset.find( q);
 	
 })
 
 
 
 Meteor.methods({
-	callAllCities: function(cities,from,before,resolution,op){
+	callAllCities: function(cities,from,before,resolution,op,fields){
+		console.log('calling fields ' + fields + '\n');
 		// make cities string an array
 		if(typeof cities != "undefined" && typeof cities == "string"){
 			var cities = cities.split(',');
@@ -117,7 +134,7 @@ Meteor.methods({
 			resolution = '1h';
 		}
 		cities.filter(function(a){
-			Meteor.call("govApi",a,null,op,resolution,from,before);
+			Meteor.call("govApi",a,fields,op,resolution,from,before);
 		});
 	
 		return true;
@@ -140,6 +157,8 @@ Meteor.methods({
 		}
 		if (typeof fields == "undefined" || fields == null){
 			fields = 'airquality_raw,dust,sound';
+		}else{
+			// be sure to remove extra commas?? replace double commas? global..
 		}
 		// aggregation operation
 		if(typeof op == "undefined" || op == null){

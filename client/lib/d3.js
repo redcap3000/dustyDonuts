@@ -19,10 +19,32 @@ collection = {"objects":[
 
 
 renderLegend = function (obj) {
-  var radius = 74,
+  if(typeof obj == "undefined"){
+    return false;
+  }
+  var radius = 100,
       padding = 10;
+  var fields = Session.get("fieldsFilter");
 
-  var color = colorRange(_.pick(obj,'sound','dust','airquality_raw'));
+
+  if(fields){
+    var obj2 = {};
+    for(var k in obj){
+      if(fields.search(k) > -1 && fields.search(k) !== 0 ){
+        obj2[k] = obj[k];
+      }
+    }
+    console.log(fields);
+    //fields = fields.split(',');
+    //fields = fields.filter(Boolean);
+    console.log(obj);
+    
+    console.log(obj2)
+    var color = colorRange(obj2);
+  }else{
+    console.log('no fields filter?? wtf');
+    return false;
+  }
   if(!color || typeof obj == "undefined"){
     return false;
   }
@@ -33,7 +55,7 @@ renderLegend = function (obj) {
   var legend = d3.select("body").append("svg")
       .attr("class", "legend")
       .attr("width", radius * 2)
-      .attr("height", radius * 2)
+      .attr("height", radius * 4)
     .selectAll("g")
       .data(color.domain().slice().reverse())
     .enter().append("g")
@@ -51,7 +73,7 @@ renderLegend = function (obj) {
       .text(function(d) { return d; });
 };
 colorRange = function(aDataset){
-  aDataset = _.pick(aDataset,'sound','dust','airquality_raw');
+  //aDataset = _.pick(aDataset,'sound','dust','airquality_raw','light','humidity','temperature');
   var color = d3.scale.ordinal()
       .range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
 
