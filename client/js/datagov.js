@@ -112,7 +112,7 @@ Template.singlePlot.rendered = function(){
       .data([data])
     .enter().append("svg")
       .attr("class", "graph pie_" + GUID)
-            .attr("id",data._id)
+            .attr("id",'c_' + data._id)
 
       .attr("width", radius * 2)
       .attr("height", radius * 2)
@@ -226,8 +226,9 @@ Template.singlePlot.rendered = function(){
        }else{
         var orderI = self.order - 1;
        }
-       console.log(self);
-      renderClock(self.data._id,self.data.aniValues[orderI].timestamp,self.data.aniValues[self.order].timestamp);
+       if(typeof self.data != "undefined" && typeof self.data != "undefined" && typeof self.data.aniValues != "undefined" && typeof self.data.aniValues[orderI] != "undefined" && typeof self.data.aniValues[orderI] != "undefined"){
+        renderClock(self.data._id,self.data.aniValues[orderI].timestamp,self.data.aniValues[self.order].timestamp);
+      }
     },
     2000);
     }else{

@@ -25,12 +25,3 @@ body {
 
 	left:0;
 }
-
-.donut-section {
-  transition: all 200ms ease;
-}
-
-.donut-section:hover {
-  transform: scale(1.1);
-  stroke-width: 0px;
-}

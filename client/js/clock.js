@@ -2,7 +2,7 @@
 renderClock = function(id,timestamp,old_timestamp){
   // weirness that shows the previous value in sync ...
 
-  d3.selectAll("svg#" + id + ' .clock').remove();
+  d3.selectAll("svg#c_" + id + ' .clock').remove();
   if(typeof timestamp != "undefined"){
     old_timestamp = moment(timestamp);
   }else{
@@ -13,11 +13,11 @@ renderClock = function(id,timestamp,old_timestamp){
   var width = 305,
     height = 305,
     strokeWidth = 6,
-    clockFillColor = "none",
+    clockFillColor = "black",
     clockBorderColor = "#B7B7B7",
-    clockHandColor = "#FEBE12",
+    clockHandColor = "gray",
     clockCenterColor = "#FEBE12",
-    transitionEnabled = 1,
+    transitionEnabled = 0,
     radius = width / 2,
     vis, clock, hourPosition, minutePosition, clockhand, hourPositionOffset;
 
@@ -54,7 +54,7 @@ renderClock = function(id,timestamp,old_timestamp){
 
   // Set up SVG
  
-  vis = d3.select("svg#" + id)
+  vis = d3.select("svg#c_" + id)
     .append("svg:svg")
     .attr("class", "clock")
     .attr("width", width)
@@ -156,11 +156,6 @@ renderClock = function(id,timestamp,old_timestamp){
   }
 
   // Add center dial
-  return clock.append("svg:circle")
-    .attr("class", "centerdot")
-    .attr("r", strokeWidth + 2)
-    .attr("fill", "#fff")
-    .attr("stroke", clockCenterColor)
-    .attr("stroke-width", strokeWidth + 2);
+  return true;
 
 };
