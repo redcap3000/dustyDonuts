@@ -1,7 +1,24 @@
 
+Template.controls.rendered = function(){
+
+   $( "input[type=submit], a, button" )
+      .button()
+      .click(function( event ) {
+        event.preventDefault();
+      });
+  $( "#btnSet" ).buttonset();
+  $( "#btnSetFields" ).buttonset();
+};
+
 Template.controls.helpers({
+  refreshButton : function(){
+    console.log('refresh butt');
+    $( '#btnSet' ).buttonset('refresh');
+  },
   isVisible : function(){
+    //$( ".cityBox" ).button( "refresh" )
     var cities = Session.get("cityFilter");
+    console.log(this);
     if(typeof cities != "undefined" && cities.search(this + '') > -1){
       return true;
     }
@@ -9,13 +26,67 @@ Template.controls.helpers({
 
 //    if()
   },
-  getCities : function(){
+  getFields : function(){
+    var fields = ['temperature',
+        'light',
+        'airquality_raw',
+        'sound',
+        'humidity',
+        'dust'];
+        
+        var fieldsFilter = Session.get("fieldsFilter");
+        console.log(fieldsFilter);
+        if(typeof fieldsFilter != "undefined" && fieldsFilter){
 
+
+         var c = fieldsFilter.split(",");
+            if(c){
+              console.log(c);
+              //c = c.filter(boolean);
+
+              var r =[];
+              //var cities = Session.get("cityFilter");
+              fields.filter(function(o){
+                // use nae for id purposes...
+                var obj = {name : o };
+              
+                if(fieldsFilter.search(o) !== -1){
+                  obj.checked = true;
+                }else{
+                  obj.checked = false;
+                }
+                r.push(obj);
+              });
+              console.log(r);
+              // create buttonsets and update state?
+              return r;
+            }
+        }
+      return false;
+  
+  },
+  getCities : function(){
+    var cFilter = Session.get("cityFilter");
+    console.log(cFilter);
     var cities = "Bangalore,Boston,Rio de Janeiro,San Francisco,Shanghai,Singapore,Geneva";
     var c = cities.split(",");
     if(c){
-      console.log(c);
-      return c;
+      var r =[];
+      //var cities = Session.get("cityFilter");
+      c.filter(function(o){
+        // use nae for id purposes...
+        var obj = {name : o.replace(/ /g,''), title : o };
+      
+        if(cFilter.search(o) !== -1){
+          obj.checked = true;
+        }else{
+          obj.checked = false;
+        }
+        r.push(obj);
+      });
+      console.log(r);
+      // create buttonsets and update state?
+      return r;
     }
   
 
@@ -56,6 +127,11 @@ Template.controls.helpers({
 });
 
 Template.controls.events({
+  'click .cityBox' : function(evt,tmpl){
+
+    $( "#btnSet" ).buttonset("refresh");
+    //$( "#" + this.name ).button( "refresh" );
+  },
   'change .op' : function(evt,tmpl){  
     var op = tmpl.find(".op");
     if(op && typeof op.value != "undefined" && op.value != ''){

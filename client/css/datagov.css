@@ -16,9 +16,8 @@ html {
 .legend {
 	position:fixed;
 	right:0;
-	top:0;
+	bottom:-1;
   padding-top:10px;
-	height:60px;
 	background-color:dark-gray;
 	border-bottom:solid black 3px;
 }

@@ -20,7 +20,7 @@
 </body>
 
 <template name='controls'>
-<div class="controls" style="display:none;">
+<div class="controls" style="display:none;z-index:1000">
 
 	<fieldset style="width:auto;border:none;">
 		<label>start</label>
@@ -47,15 +47,24 @@
 		<b>Force refresh request sent</b>
 	{{/unless}}
 	</fieldset>
-	
+	<div id='btnSet'>
 		{{#each getCities}}
-			{{#unless isVisible}}
-				<input onClick = "addCity('{{this}}');" class="cityBox" type="checkbox" name="{{this}}">{{this}}
+			{{#unless checked}}
+				<input id="{{name}}" onClick = "addCity('{{title}}'); $( '#btnSet' ).buttonset('refresh');" class="cityBox" type="checkbox" name="{{name}}"><label for="{{name}}">{{title}}</label>
 			{{else}}
-				<input onClick = "removeCity('{{this}}');" class="cityBox" type="checkbox" name="{{this}}"  checked>{{this}}
+				<input id="{{name}}" onClick = "removeCity('{{title}}'); $( '#btnSet' ).buttonset('refresh');" class="cityBox" type="checkbox" name="{{name}}"  checked><label for="{{name}}">{{title}}</label>
 			{{/unless}}
 		{{/each}}
-
+	</div>
+	<div id="btnSetFields">
+		{{#each getFields}}
+			{{#unless checked}}
+				<input id="{{name}}" onClick = "addField('{{name}}'); $( '#btnSetFields' ).buttonset('refresh');" class="cityBox" type="checkbox" name="{{name}}"><label for="{{name}}">{{name}}</label>
+			{{else}}
+				<input id="{{name}}" onClick = "removeField('{{name}}'); $( '#btnSetFields' ).buttonset('refresh');" class="cityBox" type="checkbox" name="{{name}}"  checked><label for="{{name}}">{{name}}</label>
+			{{/unless}}
+		{{/each}}
+	</div>
 
 
 	<!-- select resolution -->
