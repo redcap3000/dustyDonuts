@@ -105,12 +105,15 @@ Template.singlePlot.rendered = function(){
       return d.val; 
 
      });
-  this.order = 0;
+  this.data.order = 0;
+ 
 
   var svg = d3.select("d3data").append("pie")
       .data([data])
     .enter().append("svg")
       .attr("class", "graph pie_" + GUID)
+            .attr("id",data._id)
+
       .attr("width", radius * 2)
       .attr("height", radius * 2)
     .append("g")
@@ -135,7 +138,7 @@ Template.singlePlot.rendered = function(){
       ;
   
   svg.append("text")
-      .attr("dy", ".45em")
+      .attr("dy", "3.15em")
       .style("text-anchor", "middle").style("fill",function(d){
         if(typeof cityColors[d.city] != "undefined"){
           return cityColors[d.city];
@@ -165,9 +168,12 @@ Template.singlePlot.rendered = function(){
               .attr("class", "text button"). attr("y","15px")
               .attr("dy",".45em")
               .style("text-anchor","middle").style("fill","black").text(function(d){return d.city} );
-  var self = this;           
+  var self = this;
+   self.order = 0;           
   svg.on('click',
     function(d){
+
+      
       if(typeof self.interval == "undefined"){
         // hmmmmmmmm try to set to this?
        self.interval = Meteor.setInterval(function(){
@@ -185,7 +191,7 @@ Template.singlePlot.rendered = function(){
           return {};
         }
       );
-      svg.select("text").attr('class','text t_' + parseInt(self.order)).text(function(){return moment(d.aniValues[self.order].timestamp).format('M-D h:mm a') });
+      svg.select("text").attr('class','text t_' + parseInt(self.order)).text(function(){return moment(d.aniValues[self.order].timestamp).format('M-D a') });
        button.text(d.op);
      
       arcG.data(
@@ -213,7 +219,8 @@ Template.singlePlot.rendered = function(){
           this._current = d;
         });
 
-      self.order += 1;
+     self.order += 1;
+      renderClock(self,self.order);
     },
     2000);
     }else{
