@@ -3,13 +3,24 @@
 </head>
 
 <body>
+		{{>controls}}
+	<h4 style="position:static;right:100%;text-align:center;">
+	Air /dust and noise 
 
+	<small>Click a circle to start/stop animation.</small>
+
+	</h4>
 	{{>aggregateData}}
-	{{>controls}}
+
+<button onClick="$('.help').toggle();">Help</button>
+	<div class="help" style="display:none;">
+		{{>help}}
+	</div>
+	
 </body>
 
 <template name='controls'>
-<div class="controls">
+<div class="controls" style="display:none;">
 
 	<fieldset style="width:auto;border:none;">
 		<label>start</label>
@@ -46,14 +57,10 @@
 		{{/each}}
 
 
-	<h4 style="position:static;right:100%;text-align:center;">
-	Air /dust and noise 
 
-	<small>Click a circle to start/stop animation.</small>
-
-	</h4>
 	<!-- select resolution -->
 </div>
+<button class="cntrlBttn" onclick="$('.controls').toggle()">Controls</button>
 </template>
 <template name="about">
 <div class="about">

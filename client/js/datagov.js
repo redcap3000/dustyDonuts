@@ -150,20 +150,7 @@ Template.singlePlot.rendered = function(){
         return (   moment(d.timestamp).format('M-D h:mm a')  ) ; 
       });
       // set up animation to trigger on click.... hmmm
- svg.append("text")
-       .attr("class", "text city" )
-       .attr("y",radius - 20+"px")
-      .attr("dy", ".45em")
-      .style("text-anchor", "middle").style("fill",function(d){
-        /*if(typeof cityColors[d.city] != "undefined"){
-          return cityColors[d.city];
-        }*/
-        return 'white';
-      })
-      .text(function(d) { 
-        // color code the city....
-        return d.city ; 
-      });
+
   var button = svg.append("text")
               .attr("class", "text button"). attr("y","15px")
               .attr("dy",".45em")
@@ -191,8 +178,8 @@ Template.singlePlot.rendered = function(){
           return {};
         }
       );
-      svg.select("text").attr('class','text t_' + parseInt(self.order)).text(function(){return moment(d.aniValues[self.order].timestamp).format('M-D a') });
-       button.text(d.op);
+      svg.select("text").attr('class','text t_' + parseInt(self.order)).text(function(){return moment(d.aniValues[self.order].timestamp).format('M-D HH:MM a') });
+       button.text(d.city +' '+ d.op);
      
       arcG.data(
         function(z){
