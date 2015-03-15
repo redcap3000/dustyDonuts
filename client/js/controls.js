@@ -2,7 +2,7 @@
 Template.controls.helpers({
   isVisible : function(){
     var cities = Session.get("cityFilter");
-    if(cities.search(this + '') > -1){
+    if(typeof cities != "undefined" && cities.search(this + '') > -1){
       return true;
     }
     return false;

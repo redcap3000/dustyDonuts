@@ -219,8 +219,15 @@ Template.singlePlot.rendered = function(){
           this._current = d;
         });
 
-     self.order += 1;
-      renderClock(self,self.order);
+       self.order += 1;
+       // recurrance bug fix for clock.. send it past value because its already on the next one ..
+       if(self.order === 0){
+        var orderI = self.aniValues.length;
+       }else{
+        var orderI = self.order - 1;
+       }
+       console.log(self);
+      renderClock(self.data._id,self.data.aniValues[orderI].timestamp,self.data.aniValues[self.order].timestamp);
     },
     2000);
     }else{

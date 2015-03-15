@@ -1,13 +1,13 @@
 
-renderClock = function(self,order){
-  console.log(order);
+renderClock = function(id,timestamp,old_timestamp){
   // weirness that shows the previous value in sync ...
-  if(order === 0){
-    order = self.data.aniValues.length;
+
+  d3.selectAll("svg#" + id + ' .clock').remove();
+  if(typeof timestamp != "undefined"){
+    old_timestamp = moment(timestamp);
   }else{
-    order -= 1;
+    old_timestamp = false;
   }
-  d3.selectAll("svg#" + self.data._id + ' .clock').remove();
 
   // Clock look-n-feel: customize at will!
   var width = 305,
@@ -17,13 +17,13 @@ renderClock = function(self,order){
     clockBorderColor = "#B7B7B7",
     clockHandColor = "#FEBE12",
     clockCenterColor = "#FEBE12",
-    transitionEnabled = 0,
+    transitionEnabled = 1,
     radius = width / 2,
     vis, clock, hourPosition, minutePosition, clockhand, hourPositionOffset;
 
   // Set up time
-  console.log(self.data.aniValues[order].timestamp);
-  var now = moment(self.data.aniValues[order].timestamp);
+ 
+  var now = moment(timestamp);
   //console.log(now);
   var data = [{
     'unit': 'minutes',
@@ -54,7 +54,7 @@ renderClock = function(self,order){
 
   // Set up SVG
  
-  vis = d3.select("svg#" + self.data._id)
+  vis = d3.select("svg#" + id)
     .append("svg:svg")
     .attr("class", "clock")
     .attr("width", width)
@@ -84,6 +84,7 @@ renderClock = function(self,order){
     .innerRadius(0)
     .outerRadius((2 / 3) * radius)
     .startAngle(function (d) {
+      console.log(d);
       return scaleMins(+d.value);
     })
     .endAngle(function (d) {
@@ -116,15 +117,23 @@ renderClock = function(self,order){
   if (transitionEnabled) {
     clockhand.attr("d", function (d) {
       if (d.unit === "minutes") {
-        hourPositionOffset = +d.value;
+        if(old_timestamp){
+          console.log(old_timestamp.hours());
+          console.log(d.value);
+          console.log(+d.value);
+          d.value = old_timestamp.minutes();
+        }
+
+        hourPositionOffset = +old_timestamp.hours();
         return minutePosition();
       } else if (d.unit === "hours") {
+        console.log(d);
         return hourPosition();
       }
     })
       .transition()
-      .delay(333)
-      .duration(555)
+      .delay(1)
+      .duration(222)
       .ease("elastic", 1, 4)
       .attrTween("transform", tween);
   } else {
