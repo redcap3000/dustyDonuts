@@ -96,11 +96,18 @@ Meteor.publish("datasetRange",function(cities,f,b,resolution,op,fields,refresh){
 	//console.log(c);
 	var q = {city : { "$in" : c } ,op:op,resolution:resolution,timestamp: { $gte: from.toDate(), $lt: before.toDate() }};
 	// find the fields!!!
-	fields_array.filter(function(field){
-		q[field] = {"$exists" : true};
+	var z = {};
+
+
+	_.keys(q).filter(function(dField){
+		z[dField] = 1;	
 	})
-	console.log(q);
-	return dataset.find( q);
+
+	fields_array.filter(function(field){
+		z[field] = 1;
+	});
+	console.log(z);
+	return dataset.find( q,{"fields": z });
 	
 })
 
@@ -156,7 +163,8 @@ Meteor.methods({
 			before = moment(before,'YYYYMMDD').format();
 		}
 		if (typeof fields == "undefined" || fields == null){
-			fields = 'airquality_raw,dust,sound';
+			//airquality_raw,dust,sound,light,humidity,temperature
+			fields = 'airquality_raw,dust,sound,light,humidity,temperature';
 		}else{
 			// be sure to remove extra commas?? replace double commas? global..
 		}
@@ -180,9 +188,9 @@ Meteor.methods({
 		before = before.replace('+','-');
 		base_url +=  'op=' + op + '&over.city=' + overCity + '&from=' + from + '&before=' + before +  '&resolution=' + resolution+ '&fields=' + fields  ;
 		console.log(base_url);
-
-		Meteor.http.get(base_url,false,function(error,response){
-			if(typeof error != "undefined" && typeof response != "undefined" && typeof response.data != "undefined" && typeof response.data.data != "undefined"){
+		// try to remove trailing commas from field designations?
+		Meteor.http.get(base_url.replace(/[,;]$/,''),false,function(error,response){
+			if(typeof error != "undefined" && typeof response != "undefined" && response != null && typeof response.data != "undefined" && typeof response.data.data != "undefined"){
 				response.data.data.filter(function(arr){
 					arr.resolution = resolution;
 					arr.city = overCity;

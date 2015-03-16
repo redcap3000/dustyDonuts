@@ -28,18 +28,12 @@ Template.aggregateData.helpers({
           // fields out of order???
           byCity[key].filter(function(obj,i){
             if(i > 0){
-              // dont think this is working :(
-
-                //)
-
-              console.log(fieldsFilter);
               var obj2 = {};
               for(var k in obj){
                 if(fieldsFilter.search(k) > -1 && fieldsFilter.search(k) !== 0 || k == "timestamp" ){
                   obj2[k] = obj[k];
                 }
               }
-              console.log(obj2);
               o.aniValues.push(obj2);
             }
           });
@@ -50,18 +44,15 @@ Template.aggregateData.helpers({
                 // if field is missing dont put it in ... as long as key is one of the search fields?
                 ;
               }else{
-                console.log('adding field to obj3');
                 obj3[k] = o[k];
               }
             }else{
-              console.log ('adding field' + k );
               obj3[k] = o[k];
             }
           }
           r.push(obj3);
         }
         // get rid of top level values too !!
-        console.log(r);
         return r;
       }else{
         return [];
@@ -110,7 +101,7 @@ Template.singlePlot.rendered = function(){
 
   var data = this.data;
   // probably sort the fields in color range...
-  var color = colorRange(this.data);
+  var color = colorRange(this.data.aniValues[0]);
 
   // generates the first top level record fields for inital display
 

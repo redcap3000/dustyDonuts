@@ -18,7 +18,6 @@ Template.controls.helpers({
   isVisible : function(){
     //$( ".cityBox" ).button( "refresh" )
     var cities = Session.get("cityFilter");
-    console.log(this);
     if(typeof cities != "undefined" && cities.search(this + '') > -1){
       return true;
     }
@@ -77,7 +76,7 @@ Template.controls.helpers({
         // use nae for id purposes...
         var obj = {name : o.replace(/ /g,''), title : o };
       
-        if(cFilter.search(o) !== -1){
+        if(cities.search(o) !== -1){
           obj.checked = true;
         }else{
           obj.checked = false;

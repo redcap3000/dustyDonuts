@@ -81,6 +81,7 @@ Meteor.startup(function(){
     var op = Session.get("op");
     var cities = Session.get("cityFilter");
     var fields = Session.get("fieldsFilter");
+    var findOne = dataset.findOne();
     console.log(op);
     console.log(fields);
     handle = Meteor.subscribe('datasetRange',cities,dateStart,dateEnd,resolution,op,fields,refresh,function(){
@@ -89,6 +90,9 @@ Meteor.startup(function(){
       if(Session.equals("dataRefresh",true)){
         console.log("made call to refresh range");
         Session.set("dataRefresh",false);
+      }
+      if(findOne){
+        renderLegend(findOne);
       }
       try {
              $( '#btnSet' ).buttonset('refresh');
@@ -99,7 +103,7 @@ Meteor.startup(function(){
 
     if (handle.ready()){
       if(typeof dataset != "undefined"){
-        var findOne = dataset.findOne();
+        
         if(typeof findOne != "undefined" && findOne){
           console.log('rendering legend');
           d3.selectAll(".legend").remove();
