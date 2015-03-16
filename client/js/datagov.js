@@ -120,7 +120,7 @@ Template.singlePlot.rendered = function(){
   var GUID = moment(this.data.timestamp).format('YYYMMDDTHHMMSS') + this.data.city.split(' ').join('');
 
   var arc = d3.svg.arc()
-      .outerRadius( radius -   (this.data.aniValues != "undefined" && this.data.order != "undefined" ? (this.data.aniValues[this.data.order].airquality_raw *4) : radius ))
+      .outerRadius( radius -   (typeof this.data.aniValues != "undefined" && typeof this.data.order != "undefined" && typeof this.data.aniValues[this.data.order] != "undefined" && typeof this.data.aniValues[this.data.order].airquality_raw != "undefined" ? (this.data.aniValues[this.data.order].airquality_raw *4) : radius ))
       .innerRadius(function(d){
         
            return radius - 30;
