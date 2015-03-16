@@ -74,6 +74,7 @@ renderLegend = function (obj) {
 colorRange = function(aDataset){
   //aDataset = _.pick(aDataset,'sound','dust','airquality_raw','light','humidity','temperature');
   var color = d3.scale.ordinal()
+    //  .range (["#CF676F","#9AD58E","#4E6E8D","#554700","#FFF1AA"]);
       .range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
 
   color.domain(d3.keys(aDataset).filter(

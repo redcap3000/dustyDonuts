@@ -114,15 +114,13 @@ Template.singlePlot.rendered = function(){
     return null;
   });
   
-  console.log(this.data.fields);
 
   var radius = 155,
       padding = parseInt(radius/10);
   var GUID = moment(this.data.timestamp).format('YYYMMDDTHHMMSS') + this.data.city.split(' ').join('');
-  console.log(this.data.aniValues[this.data.order].airquality_raw);
 
   var arc = d3.svg.arc()
-      .outerRadius( radius - (this.data.aniValues[this.data.order].airquality_raw *4) )
+      .outerRadius( radius -   (this.data.aniValues != "undefined" && this.data.order != "undefined" ? (this.data.aniValues[this.data.order].airquality_raw *4) : radius ))
       .innerRadius(function(d){
         
            return radius - 30;
@@ -144,7 +142,6 @@ Template.singlePlot.rendered = function(){
     .enter().append("svg")
       .attr("class", "graph pie_" + GUID)
             .attr("id",'c_' + this.data._id)
-
       .attr("width", radius * 2)
       .attr("height", radius * 2)
     .append("g")
@@ -152,12 +149,9 @@ Template.singlePlot.rendered = function(){
 
   var arcG = svg.selectAll("arc" )
       .data(function(d) {
-
         var r = [];
         d.fields.filter(function(o){
-          console.log(o);
           if(o.data != false && o.name != "airquality_raw" && o.name != "temperature"){
-
             r.push(o)
           }
         });
@@ -173,7 +167,6 @@ Template.singlePlot.rendered = function(){
   svg.append("text")
       .attr("dy", "6.25em")
       .style("text-anchor", "middle").style("fill",function(d){
-
         return 'white';
       })
       .text(function(d) { 
@@ -187,7 +180,7 @@ Template.singlePlot.rendered = function(){
               .attr("dy","3.75em")
               .style("text-anchor","middle").style("fill","white").text(function(d){return d.city} );
   var self = this;
-   self.order = 0;           
+  self.order = 0;           
   svg.on('click',
     function(d){
       if(typeof self.interval == "undefined"){
@@ -206,8 +199,7 @@ Template.singlePlot.rendered = function(){
         }
       );
       svg.select("text").attr('class','text t_' + parseInt(self.order)).text(function(){return moment(d.aniValues[self.order].timestamp).format('M-D hh:mm a') });
-      //button.text(d.city +' '+ d.op);
-     
+      button.text(d.city);
       arcG.data(
         function(z){
           var x = [];
@@ -240,6 +232,7 @@ Template.singlePlot.rendered = function(){
        }else{
         var orderI = self.order - 1;
        }
+       // fix this.... please!!
        if(typeof self.data != "undefined" && typeof self.data != "undefined" && typeof self.data.aniValues != "undefined" && typeof self.data.aniValues[orderI] != "undefined" && typeof self.data.aniValues[orderI] != "undefined"){
         renderClock(self.data._id,self.data.aniValues[orderI].timestamp,self.data.aniValues[self.order].timestamp);
       }
@@ -264,5 +257,4 @@ Template.singlePlot.rendered = function(){
       return arc(i(t));
     };
   }
-
 };

@@ -1,13 +1,13 @@
 
 Meteor.startup(function(){
   Session.set("selectedTime",undefined);
-  Session.set("cityFilter","Boston,Rio de Janeiro,San Francisco,Shanghai,Geneva");
-  Session.set("fieldsFilter","airquality_raw,dust,sound,light,temperature");
+  Session.set("cityFilter","Boston,Rio de Janeiro,San Francisco,Shanghai,Singapore,Bangalore,Geneva");
+  Session.set("fieldsFilter","airquality_raw,dust,sound,temperature");
   Session.set("selectedCity",undefined);
   Session.set("entryFilter",undefined);
   Session.set("dataReady", undefined);
   Session.set("dataRefresh",false)
-  Session.set("resolution","4h");
+  Session.set("resolution","1h");
   Session.set("op","mean");
   Session.set("dateEnd",moment().startOf('day').format("YYYYMMDD") );
   Session.set("dateStart", moment().subtract(3,'days').endOf('day').format("YYYYMMDD"));

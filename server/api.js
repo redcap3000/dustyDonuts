@@ -3,15 +3,10 @@ Meteor.startup(function () {
 	Meteor.setInterval(function(){
 		// to avoid less complex calls go ahead and set from/before
 		// to be set to around the value of the delay....
-		console.log('doing 4 hour total data interval lookup');
+		console.log('doing 1 hour total data interval lookup');
 		// run on timeouts prolly
 		Meteor.call("callAllCities",null,null,"1h","mean",function(){
 			Meteor.call("callAllCities",null,null,"1h","sumsq",function(){
-				Meteor.call("callAllCities",null,null,"1h","max",function(){
-					Meteor.call("callAllCities",null,null,"1h","min",function(){
-						Meteor.call("callAllCities",null,null,"1h","count");
-					});
-				});
 			});
 		});
 	}, 60 * 60 * 1  * 1000);
@@ -20,11 +15,6 @@ Meteor.startup(function () {
 		console.log('doing5 min total data interval lookup');
 		Meteor.call("callAllCities",null,null,"5m","mean",function(){
 			Meteor.call("callAllCities",null,null,"5m","sumsq",function(){
-				Meteor.call("callAllCities",null,null,"5m","max",function(){
-					Meteor.call("callAllCities",null,null,"5m","min",function(){
-						Meteor.call("callAllCities",null,null,"5m","count");
-					});
-				});
 			});
 		});
 	}, 60 * 5 * 1000)
@@ -115,8 +105,10 @@ Meteor.publish("datasetRange",function(cities,f,b,resolution,op,fields,refresh){
 
 Meteor.methods({
 	callAllCities: function(cities,from,before,resolution,op,fields){
-		console.log('calling fields ' + fields + '\n');
 		// make cities string an array
+		if(typeof fields == "undefined" || !fields || fields =='' || fields == null){
+			fields = 'airquality_raw,dust,sound,light,humidity,temperature';
+		}
 		if(typeof cities != "undefined" && typeof cities == "string"){
 			var cities = cities.split(',');
 			cities=cities.filter(Boolean);
@@ -124,8 +116,10 @@ Meteor.methods({
 		}else if(typeof cities == "array" && cities.length > 0){
 			;
 		}else{
-			console.log('cities passed to callAllCities had an error');
-			return false;
+//			console.log(cities);
+//			console.log('cities passed to callAllCities had an error');
+			cities = 'Boston,Rio de Janeiro,San Francisco,Shanghai,Singapore,Bangalore,Geneva';
+			//return false;
 		}
 		if(typeof from != undefined && from != false && from != null){
 			from = moment(from,'YYYYMMDD').startOf('day').format().replace('+','-');

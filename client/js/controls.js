@@ -6,9 +6,10 @@ Template.controls.rendered = function(){
       .click(function( event ) {
         event.preventDefault();
       });
-  $( "#btnSet" ).buttonset();
+  //$( "#btnSet" ).buttonset();
   $( "#btnSetResolutions").buttonset();
   $( "#btnSetFields" ).buttonset();
+
 
  $( "#op" ).selectmenu(  {change: function( event, ui ) {
   if(typeof ui != "undefined" && typeof ui.item != "undefined" && typeof ui.item.value != "undefined"){
@@ -37,7 +38,10 @@ Template.controls.rendered = function(){
       changeMonth: true,
       numberOfMonths: 2,
       onClose: function( selectedDate ) {
-        $( "#dateEnd" ).datepicker( "option", "minDate", selectedDate );
+        $( "dateEnd" ).datepicker( "option", "minDate", selectedDate );
+        Session.set("dateStart",moment(selectedDate).format("YYYYMMDD"));
+          
+
       }
     });
     $( "#dateEnd" ).datepicker({
@@ -46,6 +50,8 @@ Template.controls.rendered = function(){
       numberOfMonths: 2,
       onClose: function( selectedDate ) {
         $( "#dateStart" ).datepicker( "option", "maxDate", selectedDate );
+        Session.set("dateEnd",moment(selectedDate).format("YYYYMMDD"));
+        
       }
     });
 
@@ -98,19 +104,13 @@ Template.controls.helpers({
     var fields = [
         'light',
         'sound',
-        'humidity',
         'dust'];
         
         var fieldsFilter = Session.get("fieldsFilter");
         if(typeof fieldsFilter != "undefined" && fieldsFilter){
-
-
          var c = fieldsFilter.split(",");
             if(c){
-              //c = c.filter(boolean);
-
               var r =[];
-              //var cities = Session.get("cityFilter");
               fields.filter(function(o){
                 // use nae for id purposes...
                 var obj = {name : o };

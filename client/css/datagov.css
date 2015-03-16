@@ -15,17 +15,18 @@ html {
 }
 
   label { display: block; }
-  select { font-size:18px; width: 140px; }
+  select { font-size:18px; width: 100px; }
 .svg{
   font-size: 22px;
 }
 .legend {
 	position:fixed;
-	left:10px;
-	top:60px;
+	right:10px;
+	top:10px;
 	background-color:dark-gray;
 	border-bottom:solid black 3px;
 }
+
 .legend{
 	border-bottom:none;
 }
@@ -41,4 +42,10 @@ html {
   position:absolute;
   bottom:0;
   left:0;
+  background-color:gray;
+  width:100%;
+}
+
+.clockhand{
+  border:solid black 2px;
 }
