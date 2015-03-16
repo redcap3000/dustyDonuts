@@ -30,7 +30,7 @@ Template.aggregateData.helpers({
             if(i > 0){
               var obj2 = {};
               for(var k in obj){
-                if(fieldsFilter.search(k) > -1 && fieldsFilter.search(k) !== 0 || k == "timestamp" ){
+                if(fieldsFilter.search(k) > -1 || k == "timestamp" ){
                   obj2[k] = obj[k];
                 }
               }
@@ -96,29 +96,37 @@ Template.singlePlot.rendered = function(){
   if(typeof this.data == "undefined"){
     return false;
   }
-
-  var svg = d3.select("#map").select("svg"),g = svg.append("g");
-
-  var data = this.data;
-  // probably sort the fields in color range...
+  this.data.order = 0;
   var color = colorRange(this.data.aniValues[0]);
 
   // generates the first top level record fields for inital display
+  var firstDS = this.data.aniValues[0];
+  renderLegend(this.data.aniValues[0]);
+  var op = this.data.op;
+  this.data.fields = color.domain().map(function(name){
+    if(typeof firstDS  != "undefined" && typeof firstDS[name] != "undefined" && name != "aniValues" && name != 'airquality_raw' && name != 'temperature'){
+      return {name:name, val: (op == "count"? parseInt(firstDS[name]) : parseFloat(firstDS[name]) * (name == 'airquality_raw'? 1 : 1) )  }
+    }else{
+      console.log(name + ' failed something..');
 
-  data.fields = color.domain().map(function(name){
-    if(typeof data[name != "undefined"] && typeof data[name] != "undefined" && name != "aniValues"){
-      return {name:name, val: (data.op == "count"? parseInt(data[name]) : parseFloat(data[name]) * (name == 'airquality_raw'? 1 : 1) )  }
     }
     // hmmm validation???
-    return {};
-  })
+    return null;
+  });
+  
+  console.log(this.data.fields);
 
   var radius = 155,
       padding = parseInt(radius/10);
   var GUID = moment(this.data.timestamp).format('YYYMMDDTHHMMSS') + this.data.city.split(' ').join('');
+  console.log(this.data.aniValues[this.data.order].airquality_raw);
+
   var arc = d3.svg.arc()
-      .outerRadius(radius)
-      .innerRadius(radius - 30);
+      .outerRadius( radius - (this.data.aniValues[this.data.order].airquality_raw *4) )
+      .innerRadius(function(d){
+        
+           return radius - 30;
+        });
 
 
   pie = d3.layout.pie()
@@ -126,17 +134,16 @@ Template.singlePlot.rendered = function(){
       // swap out population value
       .value(function(d) {
         // this value the same ALL THE GOD DAMN TIME! WHAT THE FUCK
-      return d.val; 
+        return d.val; 
+      }
+  );
 
-     });
-  this.data.order = 0;
- 
 
   var svg = d3.select("d3data").append("pie")
-      .data([data])
+      .data([this.data])
     .enter().append("svg")
       .attr("class", "graph pie_" + GUID)
-            .attr("id",'c_' + data._id)
+            .attr("id",'c_' + this.data._id)
 
       .attr("width", radius * 2)
       .attr("height", radius * 2)
@@ -148,7 +155,9 @@ Template.singlePlot.rendered = function(){
 
         var r = [];
         d.fields.filter(function(o){
-          if(o.data != false){
+          console.log(o);
+          if(o.data != false && o.name != "airquality_raw" && o.name != "temperature"){
+
             r.push(o)
           }
         });
@@ -162,12 +171,10 @@ Template.singlePlot.rendered = function(){
       ;
   
   svg.append("text")
-      .attr("dy", "3.15em")
+      .attr("dy", "6.25em")
       .style("text-anchor", "middle").style("fill",function(d){
-        if(typeof cityColors[d.city] != "undefined"){
-          return cityColors[d.city];
-        }
-        return 'black';
+
+        return 'white';
       })
       .text(function(d) { 
         // color code the city....
@@ -176,15 +183,13 @@ Template.singlePlot.rendered = function(){
       // set up animation to trigger on click.... hmmm
 
   var button = svg.append("text")
-              .attr("class", "text button"). attr("y","15px")
-              .attr("dy",".45em")
-              .style("text-anchor","middle").style("fill","black").text(function(d){return d.city} );
+              .attr("class", "text button"). attr("y","25px")
+              .attr("dy","3.75em")
+              .style("text-anchor","middle").style("fill","white").text(function(d){return d.city} );
   var self = this;
    self.order = 0;           
   svg.on('click',
     function(d){
-
-      
       if(typeof self.interval == "undefined"){
         // hmmmmmmmm try to set to this?
        self.interval = Meteor.setInterval(function(){
@@ -195,20 +200,18 @@ Template.singlePlot.rendered = function(){
       d.aniValues[self.order].fields = color.domain().map(
         function(name){
           // careful here...
-          if(typeof name != "undefined" && typeof d.aniValues[self.order][name] != "undefined" && name != "aniValues"){
+          if(typeof name != "undefined" && typeof d.aniValues[self.order][name] != "undefined" && name != "aniValues" && name != 'airquality_raw' && name != 'temperature'){
             return {name:name, val: (d.op == "count"? parseInt(d.aniValues[self.order][name]) :parseFloat(d.aniValues[self.order][name])) * (name == 'airquality_raw'? 1 : 1)   }
           }
-            // hmmm validation???
-          return {};
         }
       );
-      svg.select("text").attr('class','text t_' + parseInt(self.order)).text(function(){return moment(d.aniValues[self.order].timestamp).format('M-D HH:MM a') });
-       button.text(d.city +' '+ d.op);
+      svg.select("text").attr('class','text t_' + parseInt(self.order)).text(function(){return moment(d.aniValues[self.order].timestamp).format('M-D hh:mm a') });
+      //button.text(d.city +' '+ d.op);
      
       arcG.data(
         function(z){
           var x = [];
-          var forbidFields = ['_id','fields','timestamp','city','id','op','resolution'];
+          var forbidFields = ['_id','fields','timestamp','city','id','op','resolution','airquality_raw','temperature'];
           for(var key in z.aniValues[self.order]){
             if(_.indexOf(forbidFields,key) == -1){
               x.push({name:key,val:z.aniValues[self.order][key] * (key == 'airquality_raw' ? 1 : 1)  })
@@ -263,5 +266,3 @@ Template.singlePlot.rendered = function(){
   }
 
 };
-
-

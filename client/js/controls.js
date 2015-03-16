@@ -7,12 +7,81 @@ Template.controls.rendered = function(){
         event.preventDefault();
       });
   $( "#btnSet" ).buttonset();
+  $( "#btnSetResolutions").buttonset();
   $( "#btnSetFields" ).buttonset();
+
+ $( "#op" ).selectmenu(  {change: function( event, ui ) {
+  if(typeof ui != "undefined" && typeof ui.item != "undefined" && typeof ui.item.value != "undefined"){
+    var op = Session.get("op");
+    if(ui.item.value != "op"){
+      Session.set("op",ui.item.value);
+    }
+  }else{
+    return false;
+  }
+ }});
+
+ $( "#resolution" ).selectmenu({change: function( event, ui ) {
+  if(typeof ui != "undefined" && typeof ui.item != "undefined" && typeof ui.item.value != "undefined"){
+    var op = Session.get("resolution");
+    if(ui.item.value != "resolution"){
+      Session.set("resolution",ui.item.value);
+    }
+  }else{
+    return false;
+  }
+ }});
+
+  $( "#dateStart" ).datepicker({
+      defaultDate: "+1w",
+      changeMonth: true,
+      numberOfMonths: 2,
+      onClose: function( selectedDate ) {
+        $( "#dateEnd" ).datepicker( "option", "minDate", selectedDate );
+      }
+    });
+    $( "#dateEnd" ).datepicker({
+      defaultDate: "+1w",
+      changeMonth: true,
+      numberOfMonths: 2,
+      onClose: function( selectedDate ) {
+        $( "#dateStart" ).datepicker( "option", "maxDate", selectedDate );
+      }
+    });
+
+
 };
 
 Template.controls.helpers({
+  resolutions : function(){
+    var resolutions = [
+      {name:"4h",title:"4 Hours"},
+      {name:"1h",title:"1 Hour"},
+      {name:"5m",title:"5 Min."}
+    ];
+
+    var currentResolution = Session.get("resolution");
+    var r = [];
+
+    resolutions.filter(function(o){
+      if(o.name == currentResolution){
+        o.checked = true;
+      }
+      r.push(o);
+
+    });
+
+    return r;
+
+    /*
+
+        <input type="radio" id="radio1" name="radio"><label for="radio1">Choice 1</label>
+        <input type="radio" id="radio2" name="radio" checked="checked"><label for="radio2">Choice 2</label>
+  
+    
+    */
+  },
   refreshButton : function(){
-    console.log('refresh butt');
     $( '#btnSet' ).buttonset('refresh');
   },
   isVisible : function(){
@@ -26,21 +95,18 @@ Template.controls.helpers({
 //    if()
   },
   getFields : function(){
-    var fields = ['temperature',
+    var fields = [
         'light',
-        'airquality_raw',
         'sound',
         'humidity',
         'dust'];
         
         var fieldsFilter = Session.get("fieldsFilter");
-        console.log(fieldsFilter);
         if(typeof fieldsFilter != "undefined" && fieldsFilter){
 
 
          var c = fieldsFilter.split(",");
             if(c){
-              console.log(c);
               //c = c.filter(boolean);
 
               var r =[];
@@ -56,7 +122,6 @@ Template.controls.helpers({
                 }
                 r.push(obj);
               });
-              console.log(r);
               // create buttonsets and update state?
               return r;
             }
@@ -66,7 +131,6 @@ Template.controls.helpers({
   },
   getCities : function(){
     var cFilter = Session.get("cityFilter");
-    console.log(cFilter);
     var cities = "Bangalore,Boston,Rio de Janeiro,San Francisco,Shanghai,Singapore,Geneva";
     var c = cities.split(",");
     if(c){
@@ -83,7 +147,6 @@ Template.controls.helpers({
         }
         r.push(obj);
       });
-      console.log(r);
       // create buttonsets and update state?
       return r;
     }
@@ -110,7 +173,6 @@ Template.controls.helpers({
     return false;
   },
   getSelectedDateStart : function(){
-    console.log('what the fuck');
     var date = Session.get("dateStart");
     return moment(date,"YYYYMMDD").format("YYYY-MM-DD");
 
@@ -126,6 +188,23 @@ Template.controls.helpers({
 });
 
 Template.controls.events({
+  'click .refresh' : function(){
+
+      $( "#dialog-confirm" ).dialog({
+      resizable: false,
+      modal: true,
+      buttons: {
+        "Send this query to the api": function() {
+          Session.set('dataRefresh',true)
+          $( this ).dialog( "close" );
+        },
+        Cancel: function() {
+          $( this ).dialog( "close" );
+        }
+      }
+    });
+
+  },
   'click .cityBox' : function(evt,tmpl){
 
     $( "#btnSet" ).buttonset("refresh");
@@ -140,6 +219,7 @@ Template.controls.events({
     return false;
   },
   'change .resolution' : function(evt,tmpl){
+    alert('change');
     var res = tmpl.find(".resolution");
     if(res && typeof res.value != "undefined" && res.value != ''){
       Session.set("resolution",res.value)
@@ -150,7 +230,6 @@ Template.controls.events({
   'change .dateStart': function (evt,tmpl) {
     var date = tmpl.find(".dateStart");
     if(typeof date != "undefined" && typeof date.value != "undefined" && date.value != ''){
-      console.log(date.value);
       Session.set("dateStart",moment(date.value).format("YYYYMMDD"));
     }else{
       alert("no change");

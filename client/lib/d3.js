@@ -25,12 +25,11 @@ renderLegend = function (obj) {
   var radius = 100,
       padding = 10;
   var fields = Session.get("fieldsFilter");
-
-
   if(fields){
     var obj2 = {};
     for(var k in obj){
-      if(fields.search(k) > -1 && fields.search(k) !== 0 ){
+      console.log(k);
+      if(fields.search(k) > -1 && k != "temperature" && k!= "airquality_raw"){
         obj2[k] = obj[k];
       }
     }
@@ -69,7 +68,7 @@ renderLegend = function (obj) {
   legend.append("text")
       .attr("x", 24)
       .attr("y", 9)
-      .attr("dy", ".35em")
+      .attr("dy", ".75em")
       .text(function(d) { return d; });
 };
 colorRange = function(aDataset){
@@ -80,7 +79,7 @@ colorRange = function(aDataset){
   color.domain(d3.keys(aDataset).filter(
     // keys to NOT use
     function(key){
-      return key !== "city" && key !== "_id" && key !== "op" && key !== "resolution" && key !== "timestamp";
+      return key !== "city" && key !== "_id" && key !== "op" && key !== "resolution" && key !== "timestamp" && key !== "temperature" && key !== "airquality_raw";
     })
   );
   return color;

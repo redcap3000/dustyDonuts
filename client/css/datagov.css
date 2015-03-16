@@ -1,40 +1,44 @@
 html {
-  font-size: 22px;
+  
   background-color: darkgray;
   font-family: Tahoma, Geneva, sans-serif;
 }
 
-.button{
-  cursor: pointer;
-  border:solid 1px black;
-  float:left;
-  top:0;
-}
 .arc {
   stroke: #fff;
   color:black;
 }
+.cntrlBtn{
+  position:fixed;
+  bottom:0;
+  right:0;
+}
 
+  label { display: block; }
+  select { font-size:18px; width: 140px; }
+.svg{
+  font-size: 22px;
+}
 .legend {
 	position:fixed;
-	right:0;
-	top:0;
-  padding-top:10px;
+	left:10px;
+	top:60px;
 	background-color:dark-gray;
 	border-bottom:solid black 3px;
 }
 .legend{
 	border-bottom:none;
 }
-.controls{
-	padding-top:10px;
-	padding-left:15px;
-  background-color:gray;
-	left:0;
-  padding-bottom:10px;
-}
+
 .graph{
   margin:4%;
   margin-bottom:2%;
   margin-top:0%;
+}
+
+.controls{
+
+  position:absolute;
+  bottom:0;
+  left:0;
 }

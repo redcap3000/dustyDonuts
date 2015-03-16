@@ -24,7 +24,6 @@ renderClock = function(id,timestamp,old_timestamp){
   // Set up time
  
   var now = moment(timestamp);
-  //console.log(now);
   var data = [{
     'unit': 'minutes',
     'value': now.minutes()
@@ -32,7 +31,6 @@ renderClock = function(id,timestamp,old_timestamp){
     'unit': 'hours',
     'value': now.hours()
   }];
-  console.log(data);
   // Set up Scales        
   // Map 60 minutes onto a radial 360 degree range.
   var scaleMins = d3.scale.linear()
@@ -84,7 +82,6 @@ renderClock = function(id,timestamp,old_timestamp){
     .innerRadius(0)
     .outerRadius((2 / 3) * radius)
     .startAngle(function (d) {
-      console.log(d);
       return scaleMins(+d.value);
     })
     .endAngle(function (d) {
@@ -118,16 +115,12 @@ renderClock = function(id,timestamp,old_timestamp){
     clockhand.attr("d", function (d) {
       if (d.unit === "minutes") {
         if(old_timestamp){
-          console.log(old_timestamp.hours());
-          console.log(d.value);
-          console.log(+d.value);
           d.value = old_timestamp.minutes();
         }
 
         hourPositionOffset = +old_timestamp.hours();
         return minutePosition();
       } else if (d.unit === "hours") {
-        console.log(d);
         return hourPosition();
       }
     })

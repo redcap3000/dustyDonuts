@@ -5,16 +5,16 @@ Meteor.startup(function () {
 		// to be set to around the value of the delay....
 		console.log('doing 4 hour total data interval lookup');
 		// run on timeouts prolly
-		Meteor.call("callAllCities",null,null,"4h","mean",function(){
-			Meteor.call("callAllCities",null,null,"4h","sumsq",function(){
-				Meteor.call("callAllCities",null,null,"4h","max",function(){
-					Meteor.call("callAllCities",null,null,"4h","min",function(){
-						Meteor.call("callAllCities",null,null,"4h","count");
+		Meteor.call("callAllCities",null,null,"1h","mean",function(){
+			Meteor.call("callAllCities",null,null,"1h","sumsq",function(){
+				Meteor.call("callAllCities",null,null,"1h","max",function(){
+					Meteor.call("callAllCities",null,null,"1h","min",function(){
+						Meteor.call("callAllCities",null,null,"1h","count");
 					});
 				});
 			});
 		});
-	}, 60 * 60 * 4  * 1000);
+	}, 60 * 60 * 1  * 1000);
 
 	Meteor.setInterval(function(){
 		console.log('doing5 min total data interval lookup');
@@ -27,7 +27,7 @@ Meteor.startup(function () {
 				});
 			});
 		});
-	}, 60 * 4 * 1000)
+	}, 60 * 5 * 1000)
 });
 
 Meteor.publish("dataset",function(overCity,from,before,fields,op,resolution){

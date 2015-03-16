@@ -2,7 +2,7 @@
 Meteor.startup(function(){
   Session.set("selectedTime",undefined);
   Session.set("cityFilter","Boston,Rio de Janeiro,San Francisco,Shanghai,Geneva");
-  Session.set("fieldsFilter","airquality_raw,dust,sound,light,humidity,temperature");
+  Session.set("fieldsFilter","airquality_raw,dust,sound,light,temperature");
   Session.set("selectedCity",undefined);
   Session.set("entryFilter",undefined);
   Session.set("dataReady", undefined);
