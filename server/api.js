@@ -32,9 +32,8 @@ Meteor.publish("datasetRange",function(cities,f,b,resolution,op,fields,refresh){
 			console.log(cities);
 	}else{
 		// this.ready()?
-		console.log("City list not passed to param");
-		this.ready();
-		return false;
+		cities = 'Boston,Rio de Janeiro,San Francisco,Shanghai,Singapore,Bangalore,Geneva';
+	
 	}
 	
 	if(typeof fields == "undefined" || !fields || fields == null){
@@ -52,8 +51,8 @@ Meteor.publish("datasetRange",function(cities,f,b,resolution,op,fields,refresh){
 	}
 
 	if(!from || !before){
-		var from = moment().startOf('day');
-		var before = moment().subtract(1,'days').endOf('day');
+		var before = moment().startOf('day');
+		var from = moment().startOf('day').subtract(2,'days').endOf('day');
 		console.log('returning single day values');
 
 	}
@@ -83,11 +82,10 @@ Meteor.publish("datasetRange",function(cities,f,b,resolution,op,fields,refresh){
 	//console.log(cities.split(","));
 	var c = cities.split(',');
 	c=c.filter(Boolean);
-	//console.log(c);
 	var q = {city : { "$in" : c } ,op:op,resolution:resolution,timestamp: { $gte: from.toDate(), $lt: before.toDate() }};
 	// find the fields!!!
 	var z = {};
-
+	console.log(q);
 
 	_.keys(q).filter(function(dField){
 		z[dField] = 1;	
