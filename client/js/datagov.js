@@ -11,17 +11,69 @@ Template.aggregateData.helpers({
 
     */
     var validFields = 'airquality_raw temperature humidity light sound dust';
-    var byCity = {}, data = dataset.find({},{sort: {timestamp: 1}}).fetch().filter(function (o) {
-     if(typeof byCity[o.city] == "undefined"){
-          byCity[o.city] = [];
+    var r = [];
+    var byCity = {}, data = dataset.find({},{sort: {ts: 1}}).fetch().filter(function (o) {
+
+        //console.log(o);
+     if(typeof byCity[o.ct] == "undefined"){
+      // only put id in first record
+          byCity[o.ct] = [];
+        //  console.log(o.d3);
+        //  console.log(o._id);
+          var d3_t = o.d3;
+          d3_t[4] = o._id;
+
+
+          byCity[o.ct].push( d3_t);
+
+        }else{
+          byCity[o.ct].push(o.d3);
+
         }
-        byCity[o.city].push(o);
 
       });
+
+      console.log(byCity);
       var r = [], cities = _.keys(byCity);
       var fieldsFilter = Session.get("fieldsFilter");
 
+      for(var key in byCity){
+        if(typeof byCity[key] != "undefined" && byCity[key].length > 0){
+          console.log(byCity[key][0]);
+          var o = { _id : byCity[key][0][4], ct : key , ts : moment.unix(byCity[key][0][3]).toDate() , airquality_raw : byCity[key][0][0] , dust : byCity[key][0][1] , sound : byCity[key][0][2] };
+          o.aniValues = [];
+          byCity[key].filter(function(obj,i){
+
+              if(i > 0){
+                var obj2 = {};
+               // console.log(obj);
+                obj2.airquality_raw = obj[0];
+                obj2.dust = obj[1];
+                obj2.sound = obj[2];
+                obj2.ts =  moment.unix(obj[3]).toDate();
+                //new_r.d3 = [r.airquality_raw,r.dust,r.sound];
+    
+  //              for(var k in obj){
+                  //if(fieldsFilter.search(k) > -1 || k == "ts" ){
+    //                obj2[k] = obj[k];
+                  //}
+      //          }
+                o.aniValues.push(obj2);
+              }else{
+                // set top level props
+              }
+            }
+          );
+        }
+          r.push(o); 
+      }
+      console.log(r);
+      return r;
+      
+
+/*
       if(typeof byCity[cities[0]] != "undefined"){
+        console.log( byCity[cities[0]] );
         for(var key in byCity){
           var o = byCity[key][0]; 
           o.aniValues = [];
@@ -30,7 +82,7 @@ Template.aggregateData.helpers({
             if(i > 0){
               var obj2 = {};
               for(var k in obj){
-                if(fieldsFilter.search(k) > -1 || k == "timestamp" ){
+                if(fieldsFilter.search(k) > -1 || k == "ts" ){
                   obj2[k] = obj[k];
                 }
               }
@@ -57,7 +109,8 @@ Template.aggregateData.helpers({
       }else{
         return [];
       }
-  }
+  */
+}
 });
 
 
@@ -67,10 +120,10 @@ Template.singlePlot.destroyed = function(){
       using a GUID of a simplified version of the ts and city.
       Occurs when a subscription is updated .. etc.
   */
-  if(typeof this.data == "undefined" && typeof this.city != "undefined"){
-    var GUID = moment(this.timestamp).format('YYYMMDDTHHMMSS') + this.city.split(' ').join();
-  }else if(typeof this.data != "undefined" && typeof this.data.city != "undefined"){
-    var GUID = moment(this.data.timestamp).format('YYYMMDDTHHMMSS') + this.data.city.split(' ').join('');
+  if(typeof this.data == "undefined" && typeof this.ct != "undefined"){
+    var GUID = moment(this.ts).format('YYYMMDDTHHMMSS') + this.ct.split(' ').join();
+  }else if(typeof this.data != "undefined" && typeof this.data.ct != "undefined"){
+    var GUID = moment(this.data.ts).format('YYYMMDDTHHMMSS') + this.data.ct.split(' ').join('');
   }else{
     return false;
   }
@@ -117,7 +170,7 @@ Template.singlePlot.rendered = function(){
 
   var radius = 155,
       padding = parseInt(radius/10);
-  var GUID = moment(this.data.timestamp).format('YYYMMDDTHHMMSS') + this.data.city.split(' ').join('');
+  var GUID = moment(this.data.ts).format('YYYMMDDTHHMMSS') + this.data.ct.split(' ').join('');
 
   var arc = d3.svg.arc()
       .outerRadius( radius -   (typeof this.data.aniValues != "undefined" && typeof this.data.order != "undefined" && typeof this.data.aniValues[this.data.order] != "undefined" && typeof this.data.aniValues[this.data.order].airquality_raw != "undefined" ? (this.data.aniValues[this.data.order].airquality_raw *4) : radius ))
@@ -171,18 +224,19 @@ Template.singlePlot.rendered = function(){
       })
       .text(function(d) { 
         // color code the city....
-        return (   moment(d.timestamp).format('M-D h:mm a')  ) ; 
+        return (   moment(d.ts).format('M-D h:mm a')  ) ; 
       });
       // set up animation to trigger on click.... hmmm
 
   var button = svg.append("text")
               .attr("class", "text button"). attr("y","25px")
               .attr("dy","3.75em")
-              .style("text-anchor","middle").style("fill","white").text(function(d){return d.city} );
+              .style("text-anchor","middle").style("fill","white").text(function(d){return d.ct} );
   var self = this;
   self.order = 0;           
   svg.on('click',
     function(d){
+      button.text('started');
       if(typeof self.interval == "undefined"){
         // hmmmmmmmm try to set to this?
        self.interval = Meteor.setInterval(function(){
@@ -198,12 +252,12 @@ Template.singlePlot.rendered = function(){
           }
         }
       );
-      svg.select("text").attr('class','text t_' + parseInt(self.order)).text(function(){return moment(d.aniValues[self.order].timestamp).format('M-D hh:mm a') });
-      button.text(d.city);
+      svg.select("text").attr('class','text t_' + parseInt(self.order)).text(function(){return moment(d.aniValues[self.order].ts).format('M-D hh:mm a') });
+      button.text(d.ct);
       arcG.data(
         function(z){
           var x = [];
-          var forbidFields = ['_id','fields','timestamp','city','id','op','resolution','airquality_raw','temperature'];
+          var forbidFields = ['_id','fields','ts','ct','id','op','resolution','airquality_raw','temperature'];
           for(var key in z.aniValues[self.order]){
             if(_.indexOf(forbidFields,key) == -1){
               x.push({name:key,val:z.aniValues[self.order][key] * (key == 'airquality_raw' ? 1 : 1)  })
@@ -233,8 +287,11 @@ Template.singlePlot.rendered = function(){
         var orderI = self.order - 1;
        }
        // fix this.... please!!
-       if(typeof self.data != "undefined" && typeof self.data != "undefined" && typeof self.data.aniValues != "undefined" && typeof self.data.aniValues[orderI] != "undefined" && typeof self.data.aniValues[orderI] != "undefined"){
-        renderClock(self.data._id,self.data.aniValues[orderI].timestamp,self.data.aniValues[self.order].timestamp);
+       if(typeof self.data != "undefined" && typeof orderI != "undefined" && typeof self.data.aniValues != "undefined" && typeof self.data.aniValues[orderI] != "undefined" && typeof self.data.aniValues[orderI] != "undefined"){
+        renderClock(self.data._id,self.data.aniValues[orderI].ts,self.data.aniValues[self.order].ts);
+      }else if(typeof orderI == "undefined"){
+        console.log ('no inner order set; forcing order to be 1');
+        self.order = 1;
       }
     },
     2000);
@@ -244,7 +301,7 @@ Template.singlePlot.rendered = function(){
         Meteor.clearInterval(self.interval);
         self.interval = undefined;
     }
-    Session.set("selectedTime",moment(d.timestamp).format());
+    Session.set("selectedTime",moment(d.ts).format());
     }); 
 
   // Store the displayed angles in _current.

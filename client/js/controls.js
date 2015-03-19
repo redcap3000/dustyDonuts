@@ -61,7 +61,7 @@ Template.controls.rendered = function(){
 Template.controls.helpers({
   resolutions : function(){
     var resolutions = [
-      {name:"4h",title:"4 Hours"},
+     // {name:"4h",title:"4 Hours"},
       {name:"1h",title:"1 Hour"},
       {name:"5m",title:"5 Min."}
     ];

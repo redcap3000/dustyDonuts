@@ -31,15 +31,11 @@ html {
 	border-bottom:none;
 }
 
-.graph{
-  margin:4%;
-  margin-bottom:2%;
-  margin-top:0%;
-}
+
 
 .controls{
 
-  position:absolute;
+  position:fixed;
   bottom:0;
   left:0;
   background-color:gray;

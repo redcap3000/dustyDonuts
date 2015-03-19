@@ -1,23 +1,21 @@
 Meteor.startup(function () {
 	// refresh hourly? or more?
+	/*
 	Meteor.setInterval(function(){
 		// to avoid less complex calls go ahead and set from/before
 		// to be set to around the value of the delay....
-		console.log('doing 1 hour total data interval lookup');
 		// run on timeouts prolly
 		Meteor.call("callAllCities",null,null,"1h","mean",function(){
-			Meteor.call("callAllCities",null,null,"1h","sumsq",function(){
-			});
+		
 		});
 	}, 60 * 60 * 1  * 1000);
-
+	*/
 	Meteor.setInterval(function(){
-		console.log('doing5 min total data interval lookup');
 		Meteor.call("callAllCities",null,null,"5m","mean",function(){
-			Meteor.call("callAllCities",null,null,"5m","sumsq",function(){
-			});
+			
 		});
 	}, 60 * 5 * 1000)
+	
 });
 
 Meteor.publish("dataset",function(overCity,from,before,fields,op,resolution){
@@ -33,11 +31,10 @@ Meteor.publish("datasetRange",function(cities,f,b,resolution,op,fields,refresh){
 	}else{
 		// this.ready()?
 		cities = 'Boston,Rio de Janeiro,San Francisco,Shanghai,Singapore,Bangalore,Geneva';
-	
 	}
 	
 	if(typeof fields == "undefined" || !fields || fields == null){
-		fields = 'airquality_raw,dust,sound';
+		fields = 'airquality_raw,dust,sound,light';
 	}else{
 		// default fields
 
@@ -67,13 +64,11 @@ Meteor.publish("datasetRange",function(cities,f,b,resolution,op,fields,refresh){
 
 	if(refresh == true){
 		// notify when this is finished...
-		console.log('refreshing');
 		console.log(fields);
 		Meteor.call("callAllCities",cities,from.format("YYYYMMDD"),before.format("YYYYMMDD"),resolution,op,fields);
 	}
 
-	console.log(op);
-	console.log(resolution);
+
 	/*
 		todo support resolution to look up rounded date stamps instead of requerying...
 	*/
@@ -82,10 +77,17 @@ Meteor.publish("datasetRange",function(cities,f,b,resolution,op,fields,refresh){
 	//console.log(cities.split(","));
 	var c = cities.split(',');
 	c=c.filter(Boolean);
-	var q = {city : { "$in" : c } ,op:op,resolution:resolution,timestamp: { $gte: from.toDate(), $lt: before.toDate() }};
+	if(c.length != 7 && c.length > 0){
+		var q = {city : { "$in" : c } ,ts: { $gte: from.toDate(), $lt: before.toDate() }};
+	
+	}else{
+		var q = { ts: { $gte: from.toDate(), $lt: before.toDate() }};
+	
+	}
 	// find the fields!!!
+	/*
 	var z = {};
-	console.log(q);
+	//console.log(q);
 
 	_.keys(q).filter(function(dField){
 		z[dField] = 1;	
@@ -94,8 +96,15 @@ Meteor.publish("datasetRange",function(cities,f,b,resolution,op,fields,refresh){
 	fields_array.filter(function(field){
 		z[field] = 1;
 	});
-	console.log(z);
-	return dataset.find( q,{"fields": z });
+
+	console.log(fields_array);
+	z['city'] = 1;
+	// data compression!!
+	//z['op'] = 0;
+	//z['resolution'] = 0;
+	*/
+	console.log(q);
+	return dataset.find( q,{"fields": {ts :1, ct : 1, d3:1} });
 	
 })
 
@@ -156,7 +165,7 @@ Meteor.methods({
 		}
 		if (typeof fields == "undefined" || fields == null){
 			//airquality_raw,dust,sound,light,humidity,temperature
-			fields = 'airquality_raw,dust,sound,light,humidity,temperature';
+			fields = 'airquality_raw,dust,sound,light';
 		}else{
 			// be sure to remove extra commas?? replace double commas? global..
 		}
@@ -184,15 +193,31 @@ Meteor.methods({
 		Meteor.http.get(base_url.replace(/[,;]$/,''),false,function(error,response){
 			if(typeof error != "undefined" && typeof response != "undefined" && response != null && typeof response.data != "undefined" && typeof response.data.data != "undefined"){
 				response.data.data.filter(function(arr){
-					arr.resolution = resolution;
-					arr.city = overCity;
-					arr.op = op;
-					arr.timestamp = new Date(arr.timestamp);
-					var lookup = dataset.findOne( {resolution: resolution,timestamp : arr.timestamp,city : overCity,op : op} );
-					return (typeof lookup == "undefined" || !lookup ? dataset.update({resolution: resolution,timestamp : arr.timestamp,city : overCity,op : op}, arr,{upsert:true}) : false);
+					//arr.resolution = resolution;
+					arr.ct = overCity;
+					//arr.op = op;
+					arr.ts = new Date(arr.timestamp);
+					//console.log(arr);
+					var transformed = transformRecord(arr);
+					//var lookup = dataset.findOne( {resolution: resolution,timestamp : arr.timestamp,city : overCity,op : op} );
+					return (dataset.update({ts : arr.ts,ct : overCity}, transformed,{upsert:true}));
 				});
 			}
 		});
 		return true;
 	}
 });
+
+var transformRecord = function(r){
+	// place values in specific order to be parsed by d3 and mostly reduce datatransfer !
+	// maybe convert ts to unix .. is that smaller?
+	var new_r = {ts : r.ts , ct: r.ct };
+	if(typeof r.airquality_raw != "undefined" && typeof r.dust != "undefined" && r.sound != "undefined"){
+		new_r.d3 = [r.airquality_raw,r.dust,r.sound,Math.floor(r.ts / 1000)];
+		return new_r;
+	}
+	console.log('transform not performed');
+	return r;
+
+
+}

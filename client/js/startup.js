@@ -2,15 +2,15 @@
 Meteor.startup(function(){
   Session.set("selectedTime",undefined);
   Session.set("cityFilter","Boston,Rio de Janeiro,San Francisco,Shanghai,Singapore,Bangalore,Geneva");
-  Session.set("fieldsFilter","airquality_raw,dust,sound,temperature");
+  Session.set("fieldsFilter","airquality_raw,dust,sound");
   Session.set("selectedCity",undefined);
   Session.set("entryFilter",undefined);
   Session.set("dataReady", undefined);
   Session.set("dataRefresh",false)
   Session.set("resolution","1h");
   Session.set("op","mean");
-  Session.set("dateEnd",moment().startOf('day').format("YYYYMMDD") );
-  Session.set("dateStart", moment().subtract(3,'days').endOf('day').format("YYYYMMDD"));
+  Session.set("dateEnd",moment().endOf('day').format("YYYYMMDD") );
+  Session.set("dateStart", moment().subtract(1,'days').endOf('day').format("YYYYMMDD"));
   // turn this into fewr functions... ammahhh!!!
 
   addField = function(field){
@@ -94,10 +94,7 @@ Meteor.startup(function(){
       if(findOne){
         renderLegend(findOne);
       }
-      try {
-             $( '#btnSet' ).buttonset('refresh');
-                $( '#btnSetFields' ).buttonset('refresh');
-          } catch (exception) {}
+      
 
     });
 
@@ -118,7 +115,7 @@ Meteor.startup(function(){
       }
     }else{
       Session.set("dataReady",false);
-      // make something to show something is loading....
+     // make something to show something is loading....
       console.log('loading....');
     }
   });

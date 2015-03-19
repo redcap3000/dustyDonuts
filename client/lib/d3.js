@@ -7,6 +7,8 @@ cityColors = {"Bangalore": "green",
               "Bangalore" : "green",
               "Geneva" : "blue"
               };
+
+/*
 collection = {"objects":[
 {"circle":{"coordinates":[37.774929,-122.419416],"city":"San Francisco","color":"red"}},
 {"circle":{"coordinates":[12.971599,77.594563],"city":"Bangalore","color":"green"}},
@@ -16,29 +18,23 @@ collection = {"objects":[
 {"circle":{"coordinates":[31.230416,121.473701],"city":"Shanghai","color":"brown"}},
 {"circle":{"coordinates":[1.352083,103.819836],"city":"Singapore","color":"black"}}
 ]};
-
+*/
 
 renderLegend = function (obj) {
   if(typeof obj == "undefined"){
     return false;
   }
-  var radius = 100,
-      padding = 10;
+  var radius = 95,
+      padding = 5;
   var fields = Session.get("fieldsFilter");
   if(fields){
     var obj2 = {};
     for(var k in obj){
-      console.log(k);
       if(fields.search(k) > -1 && k != "temperature" && k!= "airquality_raw"){
         obj2[k] = obj[k];
       }
     }
-    console.log(fields);
-    //fields = fields.split(',');
-    //fields = fields.filter(Boolean);
-    console.log(obj);
-    
-    console.log(obj2)
+
     var color = colorRange(obj2);
   }else{
     console.log('no fields filter?? wtf');
