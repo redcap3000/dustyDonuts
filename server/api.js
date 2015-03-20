@@ -11,10 +11,10 @@ Meteor.startup(function () {
 	}, 60 * 60 * 1  * 1000);
 	*/
 	Meteor.setInterval(function(){
-		Meteor.call("callAllCities",null,null,"5m","mean",function(){
+		Meteor.call("callAllCities",null,null,"30m","mean",function(){
 			
 		});
-	}, 60 * 5 * 1000)
+	}, 60 * 30 * 1000)
 	
 });
 
@@ -58,9 +58,8 @@ Meteor.publish("datasetRange",function(cities,f,b,resolution,op,fields,refresh){
 	}
 	if(typeof resolution == "undefined" || !resolution || resolution == null){
 		// 1 hour default resolution....
-		resolution = "1h";
+		resolution = "30m";
 	}
-
 
 	if(refresh == true){
 		// notify when this is finished...
@@ -123,10 +122,7 @@ Meteor.methods({
 		}else if(typeof cities == "array" && cities.length > 0){
 			;
 		}else{
-//			console.log(cities);
-//			console.log('cities passed to callAllCities had an error');
 			cities = 'Boston,Rio de Janeiro,San Francisco,Shanghai,Singapore,Bangalore,Geneva';
-			//return false;
 		}
 		if(typeof from != undefined && from != false && from != null){
 			from = moment(from,'YYYYMMDD').startOf('day').format().replace('+','-');
@@ -218,6 +214,4 @@ var transformRecord = function(r){
 	}
 	console.log('transform not performed');
 	return r;
-
-
 }

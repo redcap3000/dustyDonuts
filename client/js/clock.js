@@ -15,7 +15,7 @@ renderClock = function(id,timestamp,old_timestamp){
     strokeWidth = 6,
     clockFillColor = "black",
     clockBorderColor = "#B7B7B7",
-    clockHandColor = "white",
+    clockHandColor = "black",
     clockCenterColor = "#FEBE12",
     transitionEnabled = 0,
     radius = width / 2,
@@ -105,10 +105,10 @@ renderClock = function(id,timestamp,old_timestamp){
     .append("svg:path")
     .attr("class", "clockhand")
     .attr("stroke", clockHandColor)
-    .attr("stroke-width", strokeWidth + 4)
+    .attr("stroke-width", strokeWidth + 1 )
     .attr("stroke-linecap", "round")
     .attr("stroke-linejoin", "round")
-    .attr("fill", "none");
+    .attr("fill", "red");
 
   // Animate clockhands!    
   if (transitionEnabled) {
@@ -125,8 +125,8 @@ renderClock = function(id,timestamp,old_timestamp){
       }
     })
       .transition()
-      .delay(1)
-      .duration(222)
+      .delay(300)
+      .duration(600)
       .ease("elastic", 1, 4)
       .attrTween("transform", tween);
   } else {

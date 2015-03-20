@@ -47,10 +47,12 @@ renderLegend = function (obj) {
   // dynamically generates legend keys based on
   // keys to NOT graph...
   // to do .. checkboxes to graph the other data to create custom comparisons
+    d3.selectAll(".legend" ).remove();
+
   var legend = d3.select("body").append("svg")
       .attr("class", "legend")
       .attr("width", radius * 2)
-      .attr("height", radius * 4)
+      .attr("height", radius / 1.5)
     .selectAll("g")
       .data(color.domain().slice().reverse())
     .enter().append("g")
