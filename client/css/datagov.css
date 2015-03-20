@@ -5,24 +5,22 @@ html {
 }
 
 .arc {
-  stroke: #fff;
+  stroke: red;
   color:black;
 }
 .cntrlBtn{
   position:fixed;
-  bottom:0;
-  right:0;
+  top:0;
+  left:0;
 }
 
   label { display: block; }
   select { font-size:18px; width: 100px; }
-.svg{
-  font-size: 22px;
-}
+
 .legend {
 	position:fixed;
-	right:10px;
-	top:10px;
+	right:0px;
+	bottom:0px;
 	background-color:dark-gray;
 	border-bottom:solid black 3px;
 }
@@ -31,7 +29,11 @@ html {
 	border-bottom:none;
 }
 
-
+.graph{
+  float:left;
+  padding-top:2%;
+  padding-left:2%;
+}
 
 .controls{
 
@@ -43,5 +45,6 @@ html {
 }
 
 .clockhand{
-  border:solid black 2px;
+  border:dashed black 1px;
+  color:red;
 }
