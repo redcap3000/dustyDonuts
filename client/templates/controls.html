@@ -1,0 +1,102 @@
+<template name='controls'>
+<div style="display:none;" id="dialog-confirm" title="Get query">
+  <p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>This task could potentially fail based on the parameters you pass - i.e. a request cannot return more than 1000 rows.</p>
+</div>
+
+<button class="cntrlBtn" onclick="$('.controls').toggle()">Controls</button>
+<div class="controls" style="display:none;z-index:1000">
+	<fieldset style="width:auto;border:none;">
+	<div id="btnSetFields">
+		
+		<!--
+		{{#each getFields}}
+			{{#unless checked}}
+				<input id="{{name}}" onClick = "addField('{{name}}'); $( '#btnSetFields' ).buttonset('refresh');" class="cityBox" type="checkbox" name="{{name}}"><label for="{{name}}">{{name}}</label>
+			{{else}}
+				<input id="{{name}}" onClick = "removeField('{{name}}'); $( '#btnSetFields' ).buttonset('refresh');" class="cityBox" type="checkbox" name="{{name}}"  checked><label for="{{name}}">{{name}}</label>
+			{{/unless}}
+		{{/each}}
+		&nbsp; -->
+
+		{{#unless getDataRefresh}}
+			<button class="refresh" onClick = "Session.set('dataRefresh',true)">Force data refresh</button>
+		{{else}}
+			<b>Force refresh request sent</b>
+		{{/unless}}
+		&nbsp;
+		<input type="text" id="dateStart" class="dateStart" placeholder="date start"/>
+		&nbsp;
+		<input type="text" id="dateEnd" class="dateEnd" placeholder="date end"/>
+		</div>
+		
+	</fieldset>
+	<!--
+	<div id='btnSet'>
+		{{#each getCities}}
+			{{#unless checked}}
+				<input id="{{name}}" onClick = "addCity('{{title}}'); $( '#btnSet' ).buttonset('refresh');" class="cityBox" type="checkbox" name="{{name}}"><label for="{{name}}">{{title}}</label>
+			{{else}}
+				<input id="{{name}}" onClick = "removeCity('{{title}}'); $( '#btnSet' ).buttonset('refresh');" class="cityBox" type="checkbox" name="{{name}}"  checked><label for="{{name}}">{{title}}</label>
+			{{/unless}}
+		{{/each}}
+	</div>
+	-->
+
+
+	<!-- select resolution -->
+</div>
+
+{{!
+<select name="op" id="op" class="op">
+	<option>mean</option>
+	<option>sumsq</option>
+	<option>count</option>
+	<option>max</option>
+	<option>min</option>
+</select>
+
+<select name="resolution" id="resolution" class="resolution" style="position:fixed;right:0;top:0;float:right;">
+	<option>1h</option>
+	<option>4h</option>
+	<option>5m</option>
+</select>
+}}
+</template>
+<template name="about">
+<div class="about">
+	<h1>Dusty Donuts</h1>
+	<h4>Visualisation of datacanvas data to illustrate change in noise/dust and air quality.</h4>
+
+
+	<p>The streams displayed are the aggregate values of air quality, noise, and dust over specified intervals of all the cities participating. **Clicking on a city begins the animation cycle**
+
+
+	<p>
+	This is a project written in <a href="http://meteor.com">Meteor</a> (node.js web application framework) as part of the <a href="http://datacanvas.org/sense-your-city/">datacanvas.org 2015 data art competition</a>
+	</p>
+
+
+	##Whats datacanvas?
+	Datacanvas is a project that deploys banks of sensors to participating cities. The cities currently involved are :
+
+	Bangalore Boston Rio de Janeiro San Francisco Shanghai Singapore Bangalore Geneva</p>
+</div>
+</template>
+<template name="help">
+	<h2>Faq</h2>
+
+	<h3>Why so slow?</h3>
+	<p>The data in the datagov responses are quite verbose. Also a single cities graph can be comprised of dozens, if not hundreds of datasets sorted by time depending on the resolution and the start/end ranges.</p>
+
+	<h3>How to I get started</h3>
+	<p>The first data sets should appear with the latest data from the past three days. You may enter new dates
+		in 'start end'</p>
+
+	<h3>Great I selected some dates but nothing happened!</h3>
+		<p>Press the force data refresh button and be patient!</p>
+
+	<h3>I need more speed</h3>
+		<p>Try only selecting a single day in the date range, and the highest resolution available (4 hours)</p>
+		<p>Fork the project and run it on your own servers.... or play around with compressing the data sets by shortening key names (or removing them altogether.)</p>
+
+</template>
