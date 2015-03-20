@@ -7,19 +7,8 @@
 <div class="controls" style="display:none;z-index:1000">
 	<fieldset style="width:auto;border:none;">
 	<div id="btnSetFields">
-		
-		<!--
-		{{#each getFields}}
-			{{#unless checked}}
-				<input id="{{name}}" onClick = "addField('{{name}}'); $( '#btnSetFields' ).buttonset('refresh');" class="cityBox" type="checkbox" name="{{name}}"><label for="{{name}}">{{name}}</label>
-			{{else}}
-				<input id="{{name}}" onClick = "removeField('{{name}}'); $( '#btnSetFields' ).buttonset('refresh');" class="cityBox" type="checkbox" name="{{name}}"  checked><label for="{{name}}">{{name}}</label>
-			{{/unless}}
-		{{/each}}
-		&nbsp; -->
-
 		{{#unless getDataRefresh}}
-			<button class="refresh" onClick = "Session.set('dataRefresh',true)">Force data refresh</button>
+			<button class="refresh" >Force data refresh</button>
 		{{else}}
 			<b>Force refresh request sent</b>
 		{{/unless}}
@@ -28,39 +17,9 @@
 		&nbsp;
 		<input type="text" id="dateEnd" class="dateEnd" placeholder="date end"/>
 		</div>
-		
 	</fieldset>
-	<!--
-	<div id='btnSet'>
-		{{#each getCities}}
-			{{#unless checked}}
-				<input id="{{name}}" onClick = "addCity('{{title}}'); $( '#btnSet' ).buttonset('refresh');" class="cityBox" type="checkbox" name="{{name}}"><label for="{{name}}">{{title}}</label>
-			{{else}}
-				<input id="{{name}}" onClick = "removeCity('{{title}}'); $( '#btnSet' ).buttonset('refresh');" class="cityBox" type="checkbox" name="{{name}}"  checked><label for="{{name}}">{{title}}</label>
-			{{/unless}}
-		{{/each}}
-	</div>
-	-->
-
-
-	<!-- select resolution -->
 </div>
 
-{{!
-<select name="op" id="op" class="op">
-	<option>mean</option>
-	<option>sumsq</option>
-	<option>count</option>
-	<option>max</option>
-	<option>min</option>
-</select>
-
-<select name="resolution" id="resolution" class="resolution" style="position:fixed;right:0;top:0;float:right;">
-	<option>1h</option>
-	<option>4h</option>
-	<option>5m</option>
-</select>
-}}
 </template>
 <template name="about">
 <div class="about">

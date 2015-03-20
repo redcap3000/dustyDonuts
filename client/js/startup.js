@@ -6,7 +6,7 @@ Meteor.startup(function(){
   Session.set("selectedCity",undefined);
   Session.set("entryFilter",undefined);
   Session.set("dataRefresh",false)
-  Session.set("resolution","1h");
+  Session.set("resolution","30m");
   Session.set("op","mean");
   Session.set("dateEnd",moment().endOf('day').format("YYYYMMDD") );
   Session.set("dateStart", moment().subtract(1,'days').startOf('day').format("YYYYMMDD"));

@@ -55,8 +55,15 @@ Template.singlePlot.rendered = function(){
       row should contain animation values (aniValues)
       Clicking element triggers animations.
   */
-  var aq = this.data.aniValues[this.data.order].airquality_raw;
+  if(typeof this.data != "undefined" && typeof this.data.order != "undefined" && typeof this.data.aniValues != "undefined" && typeof this.data.aniValues[this.data.order] != "undefined" && typeof this.data.aniValues[this.data.order].airquality_raw != "undefined"){
+    var aq = this.data.aniValues[this.data.order].airquality_raw; 
+  }
+  else{
+    console.log(this);
+    return false;
+  }
    var arc = d3.svg.arc()
+
       .outerRadius( function(d){
           return 100 - (typeof aq != "undefined" && aq ? aq : 0);
           })

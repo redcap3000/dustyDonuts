@@ -49,7 +49,6 @@ Template.controls.events({
       buttons: {
         "Query API": function() {
           Session.set('dataRefresh',true);
-          Template.aggregateData.onCreated();
           $( this ).dialog( "close" );
         },
         Cancel: function() {
@@ -63,7 +62,6 @@ Template.controls.events({
     if(typeof date != "undefined" && typeof date.value != "undefined" && date.value != ''){
       Session.set("dateStart",moment(date.value).format("YYYYMMDD"));
  
-      Template.aggregateData.onCreated();
     }else{
       alert("no change");
     }
@@ -77,7 +75,6 @@ Template.controls.events({
       }else{
         alert("no change");
       }
-      Template.aggregateData.onCreated();
       return true;
   }
 
